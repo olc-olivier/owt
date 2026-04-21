@@ -82,6 +82,18 @@ PROS/CONS AI Usage..
 To see during the iteration, opinion could change...
 
 
-# To complete...
+# Miscellaneous
 
+JHipster ??? Could do everything... But no personal demonstration in this case
+Read the winner repo for AI Challenge -> https://github.com/affaan-m/everything-claude-code.git
 
+AI Templates using: 
+- npx claude-code-templates@latest --skill development/api-design-principles
+- npx claude-code-templates@latest --skill development/java-pro
+- npx claude-code-templates@latest --skill development/angular
+- npx claude-code-templates@latest --agent programming-languages/spring-boot-engineer
+- npx claude-code-templates@latest --skill development/e2e-testing-patterns
+- npx claude-code-templates@latest --skill development/clean-code
+- npx claude-code-templates@latest --skill development/senior-frontend
+- npx claude-code-templates@latest --skill development/senior-backend
+- npx claude-code-templates@latest --skill development/senior-architect
