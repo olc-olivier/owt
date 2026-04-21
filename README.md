@@ -82,7 +82,7 @@ PROS/CONS AI Usage..
 To see during the iteration, opinion could change...
 
 
-# Miscellaneous
+## Miscellaneous
 
 JHipster ??? Could do everything... But no personal demonstration in this case
 Read the winner repo for AI Challenge -> https://github.com/affaan-m/everything-claude-code.git
@@ -97,3 +97,16 @@ AI Templates using:
 - npx claude-code-templates@latest --skill development/senior-frontend
 - npx claude-code-templates@latest --skill development/senior-backend
 - npx claude-code-templates@latest --skill development/senior-architect
+
+
+## Prompts
+
+1. Generate SQL for preload data
+```
+generate sql queries for insert for a file "data.sql" inside the folder "src/main/resources", 1 table contains some boats and another table contains somes users for the application autentification, no link between tables, user is not attach to a boat, only for authentification
+```
+
+2.
+```
+generate all classes required to manage the 2 tables, follow the application folders structure and the best practices for spring data rest implementation
+```

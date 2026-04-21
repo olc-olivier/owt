@@ -54,6 +54,63 @@ mvn clean package
 - Application properties typically in `src/main/resources/application.properties` or `application.yaml`
 - Docker Compose files for complex setups (e.g., `compose.yml`)
 
+### Application Folders Structure 
+````
+src/
+├── main/
+│   ├── java/
+│   │   └── owt/
+│   │       └── demo/
+│   │           ├── config/                    # Configuration classes
+│   │           │   ├── AppConfig.java
+│   │           │   ├── SecurityConfig.java
+│   │           │   └── DatabaseConfig.java
+│   │           │
+│   │           ├── presentation/              # HTTP/REST layer (Controllers)
+│   │           │   └── controller/
+│   │           │
+│   │           ├── application/               # Use cases / Application services
+│   │           │   └── service/
+│   │           │
+│   │           ├── domain/                    # Business logic / Entity models
+│   │           │   ├── model/
+│   │           │   ├── repository/            # Repository interfaces (abstraction)
+│   │           │   └── exception/
+│   │           │       ├── EntityNotFoundException.java
+│   │           │       └── InvalidOperationException.java
+│   │           │
+│   │           ├── infrastructure/            # Data access / External service implementations
+│   │           │   └── persistence/
+│   │           │
+│   │           ├── dto/record                 # Data Transfer Objects 
+│   │           │
+│   │           ├── mapper/                    # Entity <-> DTO converters
+│   │           │
+│   │           ├── util/                      # Utilities/Helpers
+│   │           │
+│   │           └── DemoApplication.java       # Main entry point
+│   │
+│   └── resources/
+│       ├── application.yml
+│       ├── application-dev.yml
+│       ├── application-prod.yml
+│       ├── schema.sql                         # Database creation
+│       ├── data.sql                           # Sample data
+│       ├── static/
+│       └── templates/
+│
+└── test/
+    └── java/
+        └── owt/
+            └── demo/
+                ├── DemoApplicationTests.java
+                ├── integration/               # Integration tests
+                ├── unit/                      # Unit tests
+                └── fixtures/                  # Test data builders
+
+```
+
+
 ## Testing Framework
 
 This repository uses a comprehensive integration testing framework with for the CRUD opertations and authentification for ensuring all examples work correctly across releases. The framework currently covers the application with integration tests** with intelligent validation for interactive applications. Some Java (mvn test ...) and Typescript (npm test ...) Tests, various location depends on the language technology.
