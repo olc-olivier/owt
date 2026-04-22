@@ -14,38 +14,61 @@ This project uses Maven with the Maven Wrapper (mvnw). Each module can be built 
 
 ### Common Development Commands
 
-**Build entire project:**
-```bash
-./mvnw clean package
-```
-
-**Build and run individual module:**
+**Build and run:**
 ```bash
 cd <module-directory>
 ./mvnw clean package
 ./mvnw spring-boot:run
 ```
 
-**Build from root (all modules):**
+**Build:**
 ```bash
 mvn clean package
+```
+
+**Run all tests:**
+```bash
+mvn test
+```
+
+**Run a single test class:**
+```bash
+mvn test -Dtest=YourTestClassName
+```
+
+**Run a single test method:**
+```bash
+mvn test -Dtest=YourTestClassName#methodName
+```
+
+**Build without running tests:**
+```bash
+mvn package -DskipTests
 ```
 
 
 ## Architecture
 
+Spring Boot REST API using an in-memory H2 database (resets on restart).
+H2 console available at http://localhost:8080/h2-console (JDBC URL: jdbc:h2:mem:restdb, user: sa, no password).
+
 ### Module Structure
 - Is a self-contained Spring Boot application
 - Modules follow standard Maven directory structure: `src/main/java` and `src/test/java`
-- Java version: 25
-- Spring Boot parent: `4.0.5`
+
+### Library Version / Code Generated should be compatible with the version
+- Java: 25
+- Spring Boot: 4.0.5
+- REST Assured 6.0
+- JUnit 5
+- Angular: 21
 
 ### Key Module Categories
 
 **Technical Features: **
 - Demonstrates CRUD operations
 - Enable Spring Security OAuth 2.0
-- Use H2 Database in memory with preload data
+- Use database in memory with preload data
 - Enable OpenAPI/ Swagger
 - Generate Javadoc
 
@@ -121,85 +144,13 @@ Java ->
 | Example Type | Test Location | Command | Purpose |
 |--------------|---------------|---------|---------|
 | **Simple** | `src/test/java/` | `./mvnw test` | Unit tests, basic functionality |
-| **Complex** | `integration-tests/` | `jbang integration-tests/Run*.java` | End-to-end integration with AI validation |
+
 
 ### Key Features
 
 - **Application Tested**: Integration tests for all major operations
 - **Centralized Architecture**: Single source of truth with 84% code reduction
 - **Comprehensive Logging**: Full application output preserved for debugging
-
-### Primary Integration Testing Tools
-
-The framework provides **two essential tools** for integration testing:
-
-**1. ⭐ Run all integration tests (primary test runner):**
-```bash
-./integration-testing/scripts/run-integration-tests.sh
-```
-
-**Run specific integration test:**
-```bash
-./integration-testing/scripts/run-integration-tests.sh module-name
-```
-
-**Run with clean logs:**
-```bash
-./integration-testing/scripts/run-integration-tests.sh --clean-logs
-```
-
-**2. ⭐ Create integration tests for new examples (scaffolding tool):**
-```bash
-# Essential for extending the framework - creates ExampleInfo.json + Run*.java files
-python3 integration-testing/scripts/scaffold_integration_test.py <module-path> [--complexity simple|complex|mcp]
-```
-
-**Create integration test with AI validation:**
-```bash
-# Simple example (hybrid AI validation)
-python3 integration-testing/scripts/scaffold_integration_test.py kotlin/kotlin-hello-world --complexity simple
-
-# Complex workflow (primary AI validation)
-python3 integration-testing/scripts/scaffold_integration_test.py agentic-patterns/chain-workflow --complexity complex
-
-# Interactive application (fallback AI validation)
-python3 integration-testing/scripts/scaffold_integration_test.py agents/reflection --complexity complex
-
-# MCP example (hybrid validation)
-python3 integration-testing/scripts/scaffold_integration_test.py model-context-protocol/weather/server --complexity complex
-```
-
-**Test specific example:**
-```bash
-cd <module-directory>
-jbang integration-tests/Run*.java  # For complex examples
-./mvnw test                         # For simple examples
-```
-
-### Integration Test Structure
-
-Complex examples include an `integration-tests/` directory with AI validation:
-```
-src/
-├── test/
-│   ├── CRUDTest.json               # Test API rest on the boat float management (add/remove/... a boat(s))
-│   └── AuthentificationTest.java   # Test Authentification and Security Access Page Protected
-```
-
-### JBang Script Pattern & AI Validation
-
-All integration test scripts use centralized utilities with AI validation support:
-- **Centralized Architecture**: Each script is only ~18 lines (84% code reduction)
-- **AI Integration**: Automatic AI validation using Claude for intelligent analysis
-- **Universal Support**: All test logic in `integration-testing/jbang-lib/IntegrationTestUtils.java`
-- **Interactive Apps**: Special handling for Scanner-based applications
-
-**Validation Modes:**
-- **Primary**: AI-only validation for unpredictable AI outputs
-- **Hybrid**: Regex patterns + AI validation for reliability
-- **Fallback**: Regex primary with AI backup for interactive applications
-
-See `integration-testing/docs/README.md` for complete guide and `integration-testing/docs/TROUBLESHOOTING.md` for troubleshooting.
 
 ### 🤖 AI Validation (NEW)
 
