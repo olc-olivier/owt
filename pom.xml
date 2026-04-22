@@ -15,6 +15,7 @@
   <description></description>
   <properties>
     <java.version>25</java.version>
+    <springdoc-openapi-starter-webmvc-ui.version>3.0.2</springdoc-openapi-starter-webmvc-ui.version>
   </properties>
   <dependencies>
     <dependency>
@@ -25,7 +26,12 @@
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>3.0.2</version>
+      <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+      <version>3.0.1</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -54,7 +60,6 @@
       <artifactId>h2</artifactId>
       <scope>runtime</scope>
     </dependency>
-
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-devtools</artifactId>
