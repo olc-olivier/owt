@@ -41,8 +41,8 @@ public class BoatService {
                 .collect(Collectors.toList());
     }
 
-    public List<BoatResponse> getBoatsByType(String type) {
-        return boatRepository.findByType(type).stream()
+    public List<BoatResponse> getBoatsByDescription(String description) {
+        return boatRepository.findByDescription(description).stream()
                 .map(boatMapper::toResponse)
                 .collect(Collectors.toList());
     }

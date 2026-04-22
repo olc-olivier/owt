@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class BoatResponse {
     private Long id;
     private String name;
-    private String type;
+    private String description;
     private Double length;
     private Integer capacity;
     private Integer yearBuilt;

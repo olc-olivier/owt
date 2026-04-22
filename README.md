@@ -106,7 +106,12 @@ AI Templates using:
 generate sql queries for insert for a file "data.sql" inside the folder "src/main/resources", 1 table contains some boats and another table contains somes users for the application autentification, no link between tables, user is not attach to a boat, only for authentification
 ```
 
-2.
+2. Generate domains/services/controllers from the preload data
 ```
 generate all classes required to manage the 2 tables, follow the application folders structure and the best practices for spring data rest implementation
+```
+
+3. Fix mistake, "description" field missing, so replace "type" field, useless
+```
+fieldname error, for a boat entity rename the field "type" by "description" and fix the code, name of variable, data.sql, schema.sql, name inside the method name, comment... etc...
 ```

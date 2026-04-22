@@ -11,7 +11,7 @@ public class BoatMapper {
     public Boat toEntity(CreateBoatRequest request) {
         return Boat.builder()
                 .name(request.getName())
-                .type(request.getType())
+                .description(request.getDescription())
                 .length(request.getLength())
                 .capacity(request.getCapacity())
                 .yearBuilt(request.getYearBuilt())
@@ -23,7 +23,7 @@ public class BoatMapper {
         return BoatResponse.builder()
                 .id(boat.getId())
                 .name(boat.getName())
-                .type(boat.getType())
+                .description(boat.getDescription())
                 .length(boat.getLength())
                 .capacity(boat.getCapacity())
                 .yearBuilt(boat.getYearBuilt())
@@ -35,8 +35,8 @@ public class BoatMapper {
         if (request.getName() != null) {
             boat.setName(request.getName());
         }
-        if (request.getType() != null) {
-            boat.setType(request.getType());
+        if (request.getDescription() != null) {
+            boat.setDescription(request.getDescription());
         }
         if (request.getLength() != null) {
             boat.setLength(request.getLength());

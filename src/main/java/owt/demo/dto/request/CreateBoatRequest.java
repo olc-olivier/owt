@@ -17,8 +17,8 @@ public class CreateBoatRequest {
     @NotBlank(message = "Boat name is required")
     private String name;
 
-    @NotBlank(message = "Boat type is required")
-    private String type;
+    @NotBlank(message = "Boat description is required")
+    private String description;
 
     @NotNull(message = "Boat length is required")
     @Positive(message = "Boat length must be positive")

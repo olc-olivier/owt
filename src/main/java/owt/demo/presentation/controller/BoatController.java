@@ -39,8 +39,8 @@ public class BoatController {
     }
 
     @GetMapping("/type/{type}")
-    public ResponseEntity<List<BoatResponse>> getBoatsByType(@PathVariable String type) {
-        List<BoatResponse> boats = boatService.getBoatsByType(type);
+    public ResponseEntity<List<BoatResponse>> getBoatsByDescription(@PathVariable String description) {
+        List<BoatResponse> boats = boatService.getBoatsByDescription(description);
         return ResponseEntity.ok(boats);
     }
 

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UpdateBoatRequest {
     private String name;
-    private String type;
+    private String description;
 
     @Positive(message = "Boat length must be positive")
     private Double length;

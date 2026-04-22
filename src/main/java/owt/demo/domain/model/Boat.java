@@ -21,7 +21,7 @@ public class Boat {
     private String name;
 
     @Column(nullable = false)
-    private String type;
+    private String description;
 
     @Column(nullable = false)
     private Double length;

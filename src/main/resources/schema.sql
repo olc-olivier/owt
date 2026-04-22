@@ -12,7 +12,7 @@ CREATE TABLE users (
 CREATE TABLE boats (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
-    type VARCHAR(50) NOT NULL,
+    description VARCHAR(50) NOT NULL,
     length DOUBLE NOT NULL,
     capacity INT NOT NULL,
     year_built INT NOT NULL,
@@ -22,5 +22,5 @@ CREATE TABLE boats (
 -- Create indexes for better query performance
 CREATE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_boats_type ON boats(type);
+CREATE INDEX idx_boats_description ON boats(description);
 CREATE INDEX idx_boats_owner ON boats(owner_name);

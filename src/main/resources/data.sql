@@ -6,7 +6,7 @@ INSERT INTO users (id, username, password, email, role, enabled) VALUES
 (4, 'bob_wilson', '{noop}password', 'bob@example.com', 'MANAGER', true);
 
 -- Boats Table - for fleet management
-INSERT INTO boats (id, name, type, length, capacity, year_built, owner_name) VALUES
+INSERT INTO boats (id, name, description, length, capacity, year_built, owner_name) VALUES
 (1, 'Sea Voyager', 'Sailboat', 45.5, 6, 2015, 'Marina Enterprises'),
 (2, 'Blue Horizon', 'Motor Yacht', 52.0, 12, 2018, 'Luxury Cruises Ltd'),
 (3, 'Swift Runner', 'Speedboat', 28.0, 4, 2020, 'Adventure Tours'),
