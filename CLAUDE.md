@@ -41,6 +41,11 @@ mvn test -Dtest=YourTestClassName
 mvn test -Dtest=YourTestClassName#methodName
 ```
 
+**Generate the Surefire report, see all test-results in ${basedir}/target/reports/surefire.html:**
+```bash
+mvn surefire-report:report 
+```
+
 **Build without running tests:**
 ```bash
 mvn package -DskipTests

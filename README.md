@@ -115,3 +115,34 @@ generate all classes required to manage the 2 tables, follow the application fol
 ```
 fieldname error, for a boat entity rename the field "type" by "description" and fix the code, name of variable, data.sql, schema.sql, name inside the method name, comment... etc...
 ```
+
+4. Generate Unit Tests
+```
+You are a senior Java/Spring expert.
+
+Context:
+- Read the README.md file first to gather additional information about this application.
+- This is a Spring Boot REST application (version ≥ 4.0.5).
+
+Your task:
+Generate complete, production-quality unit tests for the REST controllers covering the following use cases only:
+
+  UC2 – The user sees a paginated list of all boats.
+  UC3 – The user can create, update, and delete a boat.
+  UC4 – The user can click on a boat to access its detail view.
+
+Technical constraints (mandatory, no exceptions):
+  - Framework        : Spring Boot ≥ 4.0.5 / Spring Web
+  - Test slice       : @WebMvcTest (controller layer only — no service/repo wiring)
+  - Mocking          : @MockitoBean ONLY — never use @MockBean (removed in Spring Boot 4)
+  - HTTP client      : MockMvc (auto-configured by @WebMvcTest)
+  - ObjectMapper     : Declare a @Bean manually inside a @TestConfiguration class
+  - HTTP verbs       : Cover GET, POST, PUT, DELETE where applicable
+  - Coverage         : All success cases for every endpoint in scope
+
+Output format (strict):
+  - Full test class(es), one per controller
+  - All imports included at the top of each file
+  - No explanations, comments, or markdown prose — code only
+  - Clean, readable structure: arrange/act/assert pattern, descriptive method names
+```
