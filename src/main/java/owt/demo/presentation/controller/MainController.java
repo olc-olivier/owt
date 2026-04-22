@@ -1,5 +1,7 @@
 package owt.demo.presentation.controller;
 
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.stereotype.Controller;
 /*
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.security.core.Authentication;
@@ -10,14 +12,14 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 */
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-@RestController
+@Controller
 public class MainController {
 
-    @GetMapping("/")
-    public String publicPage() {
-        return "Hello World 🤩";
+    @RequestMapping("/")
+    public String index() {
+        return "index.html";
     }
 
 /*    
