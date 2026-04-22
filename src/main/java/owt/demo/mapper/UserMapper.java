@@ -1,21 +1,22 @@
 package owt.demo.mapper;
 
-import owt.demo.domain.model.User;
+import org.springframework.stereotype.Component;
+
 import owt.demo.domain.model.Role;
+import owt.demo.domain.model.User;
 import owt.demo.dto.request.CreateUserRequest;
 import owt.demo.dto.request.UpdateUserRequest;
 import owt.demo.dto.response.UserResponse;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    //private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public User toEntity(CreateUserRequest request) {
         return User.builder()
                 .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
+                //.password(passwordEncoder.encode(request.getPassword()))
+                .password(request.getPassword())
                 .email(request.getEmail())
                 .role(Role.USER)
                 .enabled(true)
@@ -37,7 +38,8 @@ public class UserMapper {
             user.setEmail(request.getEmail());
         }
         if (request.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
+            //user.setPassword(passwordEncoder.encode(request.getPassword()));
+            user.setPassword(request.getPassword());
         }
         if (request.getEnabled() != null) {
             user.setEnabled(request.getEnabled());
