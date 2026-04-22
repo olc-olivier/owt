@@ -28,3 +28,8 @@ target/
 .vscode/
 .claude/
 .agents/
+
+src/main/frontend/node*
+src/main/frontend/dist
+src/main/frontend/.angular/cache
+
