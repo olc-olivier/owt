@@ -1,3 +1,8 @@
-/* You can add global styles to this file, and also import other style files */
-
+/* Tailwind v4 CSS-first config: dark: variants activate on .dark class, not prefers-color-scheme */
 @import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

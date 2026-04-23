@@ -85,7 +85,7 @@ AI_USAGE.md — What to document
 Bonus
 - Enable Audittrail on the entity
 - OpenAPI is free -> (use the config from an old spring project) :white_check_mark:
-- Dark Mode -> discovery could be free with Google Material, require a slide button to enable in the header or footer
+- Dark Mode -> discovery could be free with Google Material, require a slide button to enable in the header or footer :white_check_mark:
 - CI/CD Github -> discovery (lot of time, keep for the end) :boom: :white_check_mark:
 
 
@@ -278,3 +278,198 @@ USER owt
 ENTRYPOINT ["java","-jar","/opt/owt/app.jar"]
 "
 ```
+
+7. Better commit log for other developers
+```
+I will commit my changes, read the change and generate the commit log with the best understanding for others developers about my work. Should be short, less 20 words.
+```
+
+8. Dark Mode
+````
+Here's the comprehensive senior-level prompt, grounded in the official Tailwind v4 docs and Angular 21 best practices:
+
+🎯 Master Prompt — Angular 21 + Tailwind CSS v4 Dark Mode
+You are a Senior Angular Developer. Implement a complete, production-grade 
+Dark Mode system for an Angular 21 application using Tailwind CSS v4 
+and Angular Material 3 (MDC). The toggle is driven by an existing 
+mat-slide-toggle component.
+
+=== CURRENT STATE ===
+
+The app already has one Angular Material theme defined in styles.scss:
+
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+
+The toggle HTML already exists:
+
+  <mat-slide-toggle class="dark-mode-slide-toggle">
+    <h2 class="example-h2">Dark Mode</h2>
+  </mat-slide-toggle>
+
+=== ARCHITECTURE DECISION ===
+
+Use the CSS class strategy (NOT prefers-color-scheme media query) so:
+- The user's explicit toggle choice always wins over the OS preference
+- Tailwind dark: variants activate via a .dark class on <html>
+- Angular Material dark theme activates via .dark-theme class on <body>
+- Tailwind v4 requires: @custom-variant dark (&:where(.dark, .dark *));
+  in styles.css (NOT tailwind.config.js — v4 uses CSS-first config)
+
+=== REQUIREMENTS ===
+
+1. THEME SERVICE (ThemeService)
+   - Create a ThemeService as a root-level Injectable (providedIn: 'root')
+   - Expose: isDarkMode = signal<boolean>(false)
+   - Method: toggleTheme(): void
+       - Flips the signal value
+       - Adds/removes 'dark' class on document.documentElement (<html>)
+         → This activates Tailwind dark: variants
+       - Adds/removes 'dark-theme' class on document.body (<body>)
+         → This activates the Angular Material dark theme
+       - Persists preference to localStorage under key 'theme'
+   - Method: initTheme(): void
+       - Called once at app startup (APP_INITIALIZER or constructor)
+       - Reads from localStorage first
+       - Falls back to window.matchMedia('(prefers-color-scheme: dark)')
+         as the default if no stored preference exists
+       - Must be SSR-safe: wrap document/window access with isPlatformBrowser()
+
+2. TAILWIND DARK MODE CONFIG (styles.css or global styles)
+   Tailwind v4 CSS-first approach — no tailwind.config.js:
+
+   @import "tailwindcss";
+   @custom-variant dark (&:where(.dark, .dark *));
+
+   This registers the dark: variant to activate on .dark class,
+   NOT on prefers-color-scheme.
+
+3. ANGULAR MATERIAL DARK THEME (styles.scss)
+   Add a second @include mat.theme() call scoped to .dark-theme:
+
+   .dark-theme {
+     @include mat.theme(
+       (
+         color: (
+           theme-type: dark,
+           primary: mat.$azure-palette,
+           tertiary: mat.$blue-palette,
+         ),
+         typography: Roboto,
+         density: 0,
+       )
+     );
+   }
+
+   Keep the existing light theme as-is (applied globally without selector).
+
+4. TOGGLE COMPONENT WIRING
+   In the component that owns the mat-slide-toggle:
+   - Inject ThemeService
+   - Bind [checked]="themeService.isDarkMode()"
+   - Bind (change)="themeService.toggleTheme()" on the mat-slide-toggle
+   - Use the Angular Material change event (MatSlideToggleChange), 
+     not a click event
+
+   Final HTML:
+   <mat-slide-toggle
+     class="dark-mode-slide-toggle"
+     [checked]="themeService.isDarkMode()"
+     (change)="themeService.toggleTheme()">
+     <h2 class="example-h2">Dark Mode</h2>
+   </mat-slide-toggle>
+
+5. SMOOTH TRANSITION
+   Add to styles.scss (or global CSS):
+
+   * {
+     transition: background-color 300ms ease, color 300ms ease,
+                 border-color 300ms ease;
+   }
+
+   Scope this under a .theme-transition class toggled during the switch
+   if you want to avoid transitions on first load (FOUC prevention).
+
+6. FOUC PREVENTION (Flash of Unstyled Content)
+   In index.html, inside <head> BEFORE any stylesheets, add an inline 
+   <script> (not deferred, not async):
+
+   <script>
+     (function() {
+       const stored = localStorage.getItem('theme');
+       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+       if (stored === 'dark' || (!stored && prefersDark)) {
+         document.documentElement.classList.add('dark');
+         document.body.classList.add('dark-theme');
+       }
+     })();
+   </script>
+
+   This runs synchronously before Angular bootstraps, 
+   preventing any flash of light mode on dark-preferring users.
+
+7. TAILWIND USAGE PATTERN IN TEMPLATES
+   Use Tailwind dark: variants on all themed elements:
+
+   <div class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+   <nav class="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+   <button class="bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-400">
+
+   Angular Material components inherit the dark palette automatically 
+   from .dark-theme on body — no extra Tailwind classes needed for mat-* components.
+
+8. SSR COMPATIBILITY (if using Angular Universal / SSR)
+   - Inject PLATFORM_ID and use isPlatformBrowser() guard around ALL 
+     localStorage, document, and window access in ThemeService
+   - Server renders with light theme by default (safe fallback)
+   - Client hydration applies the correct theme via initTheme() + 
+     the inline <script> in index.html
+
+9. ACCESSIBILITY
+   - Add aria-label="Toggle dark mode" to the mat-slide-toggle
+   - Add aria-checked binding: [attr.aria-checked]="themeService.isDarkMode()"
+   - Ensure color contrast ratio ≥ 4.5:1 in both themes (WCAG AA)
+   - Use prefers-reduced-motion to disable transitions when needed:
+       @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+10. TESTING
+    - Unit test ThemeService:
+        - toggleTheme() adds/removes 'dark' on documentElement
+        - toggleTheme() persists to localStorage
+        - initTheme() restores 'dark' from localStorage on init
+        - initTheme() falls back to matchMedia when no localStorage entry
+    - Component test: mat-slide-toggle [checked] reflects isDarkMode()
+    - Use Angular's TestBed with a mock PLATFORM_ID = BROWSER
+
+=== CONSTRAINTS ===
+- Angular 21 with standalone components (no NgModules)
+- Signals API (signal, computed, effect) — NO BehaviorSubject/RxJS for state
+- Tailwind CSS v4 (CSS-first, no tailwind.config.js)
+- Angular Material 3 (MDC-based, mat.theme() mixin)
+- No third-party theme libraries
+- ThemeService must be stateless regarding DOM on construction 
+  (defer DOM access to initTheme())
+
+=== DELIVERABLES ===
+Provide in order:
+1. theme.service.ts — with signals, localStorage, SSR-safe guards
+2. styles.scss — both mat.theme() blocks (light global + dark scoped)  
+3. styles.css (or app.css) — Tailwind v4 @custom-variant dark declaration
+4. index.html — FOUC-prevention inline script
+5. app.component.ts — wired mat-slide-toggle (standalone)
+6. app.component.html — toggle markup with bindings
+7. theme.service.spec.ts — unit tests
+
+For each file, add a one-line comment explaining the key design decision.
+```
+
+9. Dark Mode Fix with Angular Skill IA
+/angular fix test on Dark Mode not working   

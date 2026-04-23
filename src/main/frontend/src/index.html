@@ -4,6 +4,17 @@
     <meta charset="utf-8" />
     <title>Boats</title>
     <base href="/" />
+    <!-- FOUC prevention: apply theme classes synchronously before stylesheets parse -->
+    <script>
+      (function() {
+        const stored = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (stored === 'dark' || (!stored && prefersDark)) {
+          document.documentElement.classList.add('dark');
+          document.body.classList.add('dark-theme');
+        }
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />

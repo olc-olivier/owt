@@ -182,6 +182,13 @@
       margin-block: 1.5rem;
     }
   }
+
+  /* Override hardcoded dark grays when .dark is on <html> */
+  :host-context(.dark) {
+    --gray-900: oklch(95% 0.006 300.98);
+    --gray-700: oklch(80% 0.014 302.71);
+    --gray-400: oklch(55% 0.015 304.04);
+  }
 </style>
 
 <main class="main">
@@ -240,13 +247,14 @@
       <div class="pill-group">
      <mat-card class="result">
   <mat-card-content>
-    
     <section class="example-section">
       <mat-slide-toggle
-          class="example-margin"
-         >
+        class="dark-mode-slide-toggle"
+        [checked]="themeService.isDarkMode()"
+        (change)="themeService.toggleTheme()"
+        aria-label="Toggle dark mode"
+        [attr.aria-checked]="themeService.isDarkMode()">
         <h2 class="example-h2">Dark Mode</h2>
-
       </mat-slide-toggle>
     </section>
   </mat-card-content>

@@ -89,8 +89,13 @@ H2 console available at http://localhost:8080/h2-console (JDBC URL: jdbc:h2:mem:
 
 ### Application Folders Structure 
 ````
+Dockerfile                                     # File used to create a container image with the application
+pom.xml                                        # Maven Project File
 src/
 ├── main/
+│   ├── frontend/                              # Angular Project
+│   │    ├── dist/                             # Web Application JS Compiled 
+│   │    └── src/                              # Angular Source Coce Typescript
 │   ├── java/
 │   │   └── owt/
 │   │       └── demo/
