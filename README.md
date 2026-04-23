@@ -20,6 +20,15 @@ overview (UC2).
 - UC5 The user can search or filter the boat list by name or description.
 - UC6 The user sees a confirmation dialog before deleting a boat.
 
+|UseCase|Frontend|Backend|
+|:------|:-------|:------|
+|**UC1**|:negative_squared_cross_mark:|:parking:|
+|**UC2**|:parking:|:white_check_mark:|
+|**UC3**|:parking:|:white_check_mark:|
+|**UC4**|:parking:|:white_check_mark:|
+|UC5|:parking:|:white_check_mark:|
+|UC6|:parking:|:white_check_mark:|
+
 
 ## Technical Requirements
 
@@ -46,30 +55,38 @@ createdAt
 ## AI-Assisted Development
 
 AI_USAGE.md — What to document
-• Which AI tools you used
-• What you used them for (architecture, code gen, tests, docs…)
-• 3–5 representative prompts verbatim
+• Which AI tools you used 
+    -> Claude Templates (spring-boot-engineer, etc...)
+    -> Claude Skills (angular, etc...)
+    -> VSCode Copilot (less tokens consumptions)
+• What you used them for (architecture, code gen, tests, docs…) 3–5 representative prompts verbatim
+    -> See prompt on the bottom content
 • How you validated AI output (what you changed, fixed, or rejected)
+    -> Use cases, changed & fixed (missing fieldname, pagination forget)
+    -> Security, over-consumed token to fix generate services under security enable
+    -> Simple task of initiliazation like (create spring application, angular application, material) already have a industrial generation by the editor
 • What you chose NOT to delegate to AI — and why
+    -> Security (could be a lot complex, require to much loop)
+    -> Do everything if your Claude Rules are not complete and tested, generate too much code and function useless, token comsumption high. I start from blank, my automatic generator is not ready and take existing on the net require to time to adjust the result generated.
 
 ## Steps
 
-1. Setup AI (find best template for claude)
-2. What are the dependencies require? -> SPRING:security:web:rest:db (in memory more simple, with preload, H2)
-3. Use Spring Initializr
-4. Use NG client
-5. Generate Automatic tests from Use cases
+1. Setup AI (find best template for claude) :white_check_mark:
+2. What are the dependencies require? -> SPRING:security:web:rest:db (in memory more simple, with preload, H2) :white_check_mark:
+3. Use Spring Initializr :white_check_mark:
+4. Use NG client :white_check_mark:
+5. Generate Automatic tests from Use cases :white_check_mark:
 6. OAuth (use the config from an old spring project with my Google auth. coming from a Devoxx Conf.)
 7. Errors/Logs centric manangement (???) -> OpenTelemetry
-8. Responsive UI (mobile-friendly) -> Google Material
-9. Not sure, I can use the Docker Maven Plugin with my Mac M1, to check 
+8. Responsive UI (mobile-friendly) -> Google Material :white_check_mark:
+9. Application as a Docker Container :white_check_mark:
 10. Generate the Documentation
 
 Bonus
 - Enable Audittrail on the entity
-- OpenAPI is free -> (use the config from an old spring project)
+- OpenAPI is free -> (use the config from an old spring project) :white_check_mark:
 - Dark Mode -> discovery could be free with Google Material, require a slide button to enable in the header or footer
-- CI/CD Github -> discovery (lot of time, keep for the end) :boom:
+- CI/CD Github -> discovery (lot of time, keep for the end) :boom: :white_check_mark:
 
 
 PROS/CONS AI Usage..
@@ -243,3 +260,21 @@ Cover exactly these 8 scenarios:
      → 200, content is empty, no 4xx or 5xx
 
 ```  
+
+6. Web Application inside a Docker Container
+```
+Comme un Devops engineer, optimize le Dockerfile selon les bonnes pratiques
+Container lance une application web Spring/Angular sur le port 8080 avec le user OWT
+
+"
+FROM eclipse-temurin:25-jdk-alpine
+EXPOSE 8080
+RUN addgroup -S owt && adduser -S owt -G owt
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} /opt/owt/app.jar
+WORKDIR /opt/owt
+RUN chown -R owt:owt /opt/owt
+USER owt
+ENTRYPOINT ["java","-jar","/opt/owt/app.jar"]
+"
+```

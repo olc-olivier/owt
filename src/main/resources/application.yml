@@ -2,6 +2,17 @@ spring:
   application:
     name: demo
 
+  management:
+    security:
+      enabled: false
+    endpoint:
+      health:
+        show-details: always
+    endpoints:
+      web:
+        exposure:
+          include: health,info
+
   datasource:
     url: jdbc:h2:mem:boatdb
     driverClassName: org.h2.Driver

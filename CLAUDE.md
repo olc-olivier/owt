@@ -51,6 +51,11 @@ mvn surefire-report:report
 mvn package -DskipTests
 ```
 
+**Generate the Docker Image / require to have a Docker Daemon to run:**
+```bash
+mvn install -DskipTests
+```
+
 
 ## Architecture
 
