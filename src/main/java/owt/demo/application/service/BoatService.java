@@ -7,6 +7,8 @@ import owt.demo.dto.request.CreateBoatRequest;
 import owt.demo.dto.request.UpdateBoatRequest;
 import owt.demo.dto.response.BoatResponse;
 import owt.demo.mapper.BoatMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -35,10 +37,8 @@ public class BoatService {
         return boatMapper.toResponse(boat);
     }
 
-    public List<BoatResponse> getAllBoats() {
-        return boatRepository.findAll().stream()
-                .map(boatMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<BoatResponse> getAllBoats(Pageable pageable) {
+        return boatRepository.findAll(pageable).map(boatMapper::toResponse);
     }
 
     public List<BoatResponse> getBoatsByDescription(String description) {

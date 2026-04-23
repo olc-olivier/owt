@@ -5,6 +5,12 @@ import owt.demo.dto.request.CreateBoatRequest;
 import owt.demo.dto.request.UpdateBoatRequest;
 import owt.demo.dto.response.BoatResponse;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +21,11 @@ import java.util.List;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class BoatController {
     private final BoatService boatService;
+    private final PagedResourcesAssembler<BoatResponse> pagedResourcesAssembler;
 
-    public BoatController(BoatService boatService) {
+    public BoatController(BoatService boatService, PagedResourcesAssembler<BoatResponse> pagedResourcesAssembler) {
         this.boatService = boatService;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
     @PostMapping
@@ -33,12 +41,14 @@ public class BoatController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BoatResponse>> getAllBoats() {
-        List<BoatResponse> boats = boatService.getAllBoats();
-        return ResponseEntity.ok(boats);
+    public ResponseEntity<PagedModel<EntityModel<BoatResponse>>> getAllBoats(
+            @PageableDefault(size = 20) Pageable pageable) {
+        Page<BoatResponse> page = boatService.getAllBoats(pageable);
+        PagedModel<EntityModel<BoatResponse>> model = pagedResourcesAssembler.toModel(page);
+        return ResponseEntity.ok(model);
     }
 
-    @GetMapping("/type/{type}")
+    @GetMapping("/description/{description}")
     public ResponseEntity<List<BoatResponse>> getBoatsByDescription(@PathVariable String description) {
         List<BoatResponse> boats = boatService.getBoatsByDescription(description);
         return ResponseEntity.ok(boats);

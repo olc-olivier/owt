@@ -146,3 +146,100 @@ Output format (strict):
   - No explanations, comments, or markdown prose — code only
   - Clean, readable structure: arrange/act/assert pattern, descriptive method names
 ```
+
+5 Fix C2 Unit Test don't respect the Use Case
+```
+You are a senior Java/Spring expert.
+
+Context:
+- Read README.md first for project conventions and domain model.
+- Spring Boot ≥ 4.0.5, Spring Web, Spring Data JPA.
+- Pagination must follow Spring Data REST conventions:
+  https://docs.spring.io/spring-data/rest/reference/paging-and-sorting.html
+
+────────────────────────────────────────────
+GOAL
+────────────────────────────────────────────
+UC2 — the user sees a paginated list of all boats, with:
+  - configurable page size   (?size=N, default 20)
+  - page navigation          (?page=N, zero-based)
+  - single-field sort        (?sort=field,asc|desc)
+  - multi-field sort         (?sort=field1,asc&sort=field2,desc)
+  - Page metadata in response body (size, totalElements, totalPages, number)
+  - HAL _links: self, first, last, next (when applicable), prev (when applicable)
+
+Do NOT write a review report. Directly fix and generate — see steps below.
+
+────────────────────────────────────────────
+STEP 1 — SCAN (silent)
+────────────────────────────────────────────
+Read the existing controller, service, and repository for boats.
+Identify silently which of the following are missing or incorrect:
+
+  [ ] Repository method returns Page (not List)
+  [ ] Service method accepts and forwards Pageable
+  [ ] Controller endpoint accepts Pageable (auto-resolved by Spring MVC)
+  [ ] Response wraps Page so metadata + _links are serialized
+  [ ] Default page size is explicitly configured (e.g. @PageableDefault or config)
+  [ ] Sort parameters map to valid Boat fields
+
+────────────────────────────────────────────
+STEP 2 — PATCH IMPLEMENTATION
+────────────────────────────────────────────
+For every gap found in Step 1, output the corrected file in full.
+Rules:
+  - Output complete classes only — no partial snippets, no "..." placeholders.
+  - Preserve all existing logic unrelated to pagination.
+  - Use @PageableDefault(size = 20) on the controller parameter if no default
+    is set elsewhere.
+  - Return ResponseEntity> (or the project's existing DTO/response
+    wrapper — check README for conventions).
+  - If no gap is found for a layer, output nothing for that layer.
+
+Output format per file:
+  // FILE: src/main/java/.../BoatController.java
+  
+
+────────────────────────────────────────────
+STEP 3 — GENERATE UNIT TESTS
+────────────────────────────────────────────
+Write a complete @WebMvcTest test class for the boats list endpoint,
+targeting the code produced in Step 2 (or the existing code if no patch was needed).
+
+Hard constraints:
+  - @WebMvcTest (controller layer only)
+  - @MockitoBean — NEVER @MockBean (removed in Spring Boot 4)
+  - MockMvc for all HTTP calls
+  - ObjectMapper declared as @Bean inside a @TestConfiguration inner class
+  - Security disabled (excludeAutoConfiguration or @TestConfiguration override)
+  - All imports included at top of file
+  - No explanations — code only
+  - Arrange / Act / Assert structure, descriptive method names
+
+Cover exactly these 8 scenarios:
+
+  1. GET /boats (no params)
+     → 200, page.number == 0, page.size == 20 (default)
+
+  2. GET /boats?size=5
+     → 200, page.size == 5, content.length <= 5
+
+  3. GET /boats?page=1&size=5
+     → 200, page.number == 1, _links contains "prev"
+
+  4. GET /boats?sort=name,asc
+     → 200, Pageable received by service has Sort.by("name").ascending()
+
+  5. GET /boats?sort=name,desc
+     → 200, Pageable received by service has Sort.by("name").descending()
+
+  6. GET /boats?sort=type,asc&sort=name,desc
+     → 200, Pageable has two sort orders in declared sequence
+
+  7. Simulate last page (page == totalPages - 1)
+     → 200, response body has no _links.next
+
+  8. GET /boats?page=9999
+     → 200, content is empty, no 4xx or 5xx
+
+```  
