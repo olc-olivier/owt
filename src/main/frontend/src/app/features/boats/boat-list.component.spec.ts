@@ -257,7 +257,7 @@ describe('BoatListComponent', () => {
 
     it('should display an error message when the API call fails', async () => {
       const fixture = await setupWithError();
-      expect(fixture.nativeElement.textContent).toContain('Failed to load boats');
+      expect(fixture.nativeElement.textContent).toContain('Network error');
     });
 
     it('should render a Retry button when an error occurs', async () => {

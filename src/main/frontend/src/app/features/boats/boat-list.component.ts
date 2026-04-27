@@ -722,8 +722,8 @@ export class BoatListComponent implements OnInit, AfterViewInit {
         this.dataSource.data = data;
         this.loading.set(false);
       },
-      error: () => {
-        this.error.set('Failed to load boats. Is the server running?');
+      error: (err: Error) => {
+        this.error.set(err.message);
         this.loading.set(false);
       },
     });
@@ -773,7 +773,7 @@ export class BoatListComponent implements OnInit, AfterViewInit {
       if (!result) return;
       this.boatService.create(result).subscribe({
         next: () => { this.load(); this.notify('Boat added successfully'); },
-        error: () => this.notify('Failed to add boat', true),
+        error: (err: Error) => this.notify(err.message, true),
       });
     });
   }
@@ -796,7 +796,7 @@ export class BoatListComponent implements OnInit, AfterViewInit {
       if (!result) return;
       this.boatService.update(boat.id, result).subscribe({
         next: () => { this.load(); this.notify('Boat updated successfully'); },
-        error: () => this.notify('Failed to update boat', true),
+        error: (err: Error) => this.notify(err.message, true),
       });
     });
   }
@@ -819,7 +819,7 @@ export class BoatListComponent implements OnInit, AfterViewInit {
       if (!confirmed) return;
       this.boatService.delete(boat.id).subscribe({
         next: () => { this.load(); this.notify('Boat deleted'); },
-        error: () => this.notify('Failed to delete boat', true),
+        error: (err: Error) => this.notify(err.message, true),
       });
     });
   }
@@ -845,7 +845,7 @@ export class BoatListComponent implements OnInit, AfterViewInit {
       } else if (result.action === 'edit' && result.data) {
         this.boatService.update(boat.id, result.data).subscribe({
           next: () => { this.load(); this.notify('Boat updated successfully'); },
-          error: () => this.notify('Failed to update boat', true),
+          error: (err: Error) => this.notify(err.message, true),
         });
       }
     });

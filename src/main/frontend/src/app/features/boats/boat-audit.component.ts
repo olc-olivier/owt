@@ -170,8 +170,8 @@ export class BoatAuditComponent implements OnInit {
         this.revisions.set(data);
         this.loading.set(false);
       },
-      error: () => {
-        this.error.set('Failed to load revision history.');
+      error: (err: Error) => {
+        this.error.set(err.message);
         this.loading.set(false);
       },
     });

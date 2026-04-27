@@ -84,6 +84,7 @@ AI_USAGE.md — What to document
 11. Integrated testing (Maven + npm) :white_check_mark:
 12. Expanded test data (30 boats) :white_check_mark:
 13. Audit Log :white_check_mark:
+14. GlobalExceptionHandler :white_check_mark:
 
 Bonus
 - Enable Audittrail on the entity
@@ -333,7 +334,7 @@ I will commit my changes, read the change and generate the commit log with the b
 ```
 
 8. Dark Mode
-````
+```
 Here's the comprehensive senior-level prompt, grounded in the official Tailwind v4 docs and Angular 21 best practices:
 
 🎯 Master Prompt — Angular 21 + Tailwind CSS v4 Dark Mode
@@ -628,10 +629,9 @@ Ensure the test code is clean, maintainable, and production-ready
 Authorize form login and oauth2, prior access to login page classic login by api and add button to redirect to oauth login page if signed with success with dex redirectTo: 'boats' no need to go on the angular form login page
 ```
 
-<details>
-  <summary>
-    13. Auditing
-  </summary>
+
+13. Auditing
+```
 Act as a senior full-stack architect specialized in Spring Boot and Angular.
 
 I want to design and implement a complete auditing system for a Spring Boot application (using Spring Data JPA) with an Angular frontend.
@@ -675,4 +675,4 @@ Example API endpoints and JSON responses
 Common pitfalls and how to avoid them
 
 Use clean code, production-ready patterns, and explain key decisions.
-</details>
+```
