@@ -107,6 +107,41 @@ H2 console available at http://localhost:8080/h2-console (JDBC URL: jdbc:h2:mem:
 - Application properties typically in `src/main/resources/application.properties` or `application.yaml`
 - Docker Compose files for complex setups (e.g., `compose.yml`)
 
+### OAuth2 / Dex Configuration
+
+The application uses **Dex** (OpenID Connect provider) for authentication.
+
+**Environment-specific configuration:**
+
+- **Local development** (localhost):
+  ```bash
+  # Uses application.yml defaults
+  export DEX_ISSUER_URI=http://localhost:5556/dex
+  export DEX_JWK_SET_URI=http://localhost:5556/dex/keys
+  ./mvnw spring-boot:run
+  ```
+
+- **Docker container** (via compose.yml):
+  - Browser accesses: `http://localhost:8080` → port mapped to app container
+  - App container reaches Dex: `http://dex:5556/dex` → Docker internal DNS
+  - `extra_hosts: ["localhost:dex"]` makes `localhost` resolve to `dex` service inside app container
+  - Dex issues tokens with issuer: `http://localhost:5556/dex` (accessible to both)
+
+**Key files:**
+- `dex/config.yaml` - Dex issuer: `http://localhost:5556/dex` (external URL)
+- `src/main/resources/application.yml` - Default (local): `http://localhost:5556/dex`
+- `src/main/resources/application-docker.yml` - Docker profile: `http://dex:5556/dex` (internal DNS)
+- `compose.yml` - Docker network with extra_hosts mapping + profile selection
+
+**Run with Docker Compose:**
+```bash
+docker compose up
+# Browser: http://localhost:8080
+# Dex: http://localhost:5556/dex
+# Login: admin@example.com / password
+# App container resolves localhost→dex via extra_hosts
+```
+
 ### Application Folders Structure 
 ````
 Dockerfile                                     # File used to create a container image with the application

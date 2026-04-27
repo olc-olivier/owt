@@ -1,0 +1,31 @@
+services:
+  app:
+    image: owt:0.0.1-SNAPSHOT
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_DEX_ISSUER_URI: http://192.168.1.32:5556/dex
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://192.168.1.32:5556/dex/keys
+    depends_on:
+      dex:
+        condition: service_healthy
+
+  dex:
+    hostname: dex
+    image: ghcr.io/dexidp/dex:v2.41.1
+    ports:
+      - "5556:5556"
+    volumes:
+      - ./dex/config.yaml:/etc/dex/config.yaml:ro
+      - dex-data:/var/dex
+    command: ["dex", "serve", "/etc/dex/config.yaml"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5556/dex/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  dex-data:

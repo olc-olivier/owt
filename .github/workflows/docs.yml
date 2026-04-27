@@ -1,6 +1,13 @@
 # .github/workflows/docs.yml
 jobs:
   generate-docs:
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      security-events: write
+
     steps:
       # Angular
       - run: npm run docs
