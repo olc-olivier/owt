@@ -69,6 +69,14 @@ AI_USAGE.md — What to document
     -> Security (could be a lot complex, require to much loop)
     -> Do everything if your Claude Rules are not complete and tested, generate too much code and function useless, token comsumption high. I start from blank, my automatic generator is not ready and take existing on the net require to time to adjust the result generated.
 
+
+ > **NOT to delegate.**
+ <br/>- Security (With an External Security Server as OAuth2, better it is to help on the beginning of the implementation)<br/>- Project Initialization Best Practices (tools) is sometime better than a AI generate code (ng client, Spring Initializr)<br/>- Containers,  avoid common issues with "localhost" (difference between host machine and container network)
+
+ > **AI tips.**
+ <br/>:star: Agents (spring-boot-engineer)<br/>:star: Skills (angular, etc...)<br/>:star: Using IA itself to generate some good prompts<br/>:star: Contexts (as a senior full-stack architect specialized in Spring Boot and Angular, etc...)<br/>:star: Guide AI assistants with some rules (CLAUDE.md)<br/>:star: Provide some specific documentations or templates (websites)<br/>:star: Smart “low effort” -> optimize token usage
+
+
 ## Steps
 
 1. Setup AI (find best template for claude) :white_check_mark:
