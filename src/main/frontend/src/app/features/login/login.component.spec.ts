@@ -4,6 +4,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { Router } from '@angular/router';
 import { By } from '@angular/platform-browser';
 import { Component } from '@angular/core';
+import { of, Subject } from 'rxjs';
 import { LoginComponent } from './login.component';
 import { AuthService } from '../../services/auth.service';
 
@@ -12,11 +13,14 @@ import { AuthService } from '../../services/auth.service';
 class BoatsStubComponent {}
 
 function createAuthServiceMock(loginReturnValue = true) {
+  const ready$ = new Subject<void>();
+  ready$.next(); // emit immediately so ngOnInit doesn't hang
   return {
-    login: jest.fn().mockReturnValue(loginReturnValue),
+    login: jest.fn().mockReturnValue(of(loginReturnValue)),
     logout: jest.fn(),
     isAuthenticated: false,
     user: jest.fn().mockReturnValue(null),
+    sessionReady$: ready$.asObservable(),
   };
 }
 

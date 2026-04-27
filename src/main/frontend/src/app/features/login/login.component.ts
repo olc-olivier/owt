@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -7,6 +7,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDividerModule } from '@angular/material/divider';
+import { take } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 
 /**
@@ -14,9 +16,11 @@ import { AuthService } from '../../services/auth.service';
  *
  * Selector: `app-login`
  *
- * Validates that both username and password are non-empty before calling
- * {@link AuthService.login}. On success the user is navigated to `/boats`.
- * On failure an inline error message is displayed.
+ * Provides two authentication paths:
+ * - **Username / password form**: calls {@link AuthService.login} which posts
+ *   to {@code /api/auth/login}. On success navigates to {@code /boats}.
+ * - **Sign in with Dex**: redirects the browser to
+ *   {@code /oauth2/authorization/dex} for the OAuth2 redirect flow.
  *
  * **Features:**
  * - Reactive form with required-field validation.
@@ -36,6 +40,7 @@ import { AuthService } from '../../services/auth.service';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatDividerModule,
   ],
   template: `
     <div class="login-page">
@@ -100,10 +105,28 @@ import { AuthService } from '../../services/auth.service';
               }
             </button>
           </form>
+
+          <div class="divider-row">
+            <mat-divider class="divider-line" />
+            <span class="divider-label">or</span>
+            <mat-divider class="divider-line" />
+          </div>
+
+          <button
+            mat-stroked-button
+            color="accent"
+            type="button"
+            class="dex-btn"
+            (click)="loginWithDex()"
+            [disabled]="loading()"
+          >
+            <mat-icon>vpn_key</mat-icon>
+            Sign in with Dex
+          </button>
         </mat-card-content>
 
         <mat-card-footer>
-          <p class="hint">Any credentials work — the fleet awaits.</p>
+          <p class="hint">Use admin / password for form login, or sign in via Dex OAuth2.</p>
         </mat-card-footer>
       </mat-card>
     </div>
@@ -204,6 +227,34 @@ import { AuthService } from '../../services/auth.service';
       justify-content: center;
     }
 
+    .divider-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 1.25rem 0 1rem;
+
+      .divider-line {
+        flex: 1;
+      }
+
+      .divider-label {
+        font-size: 0.8rem;
+        color: var(--mat-card-subtitle-text-color, #888);
+        white-space: nowrap;
+      }
+    }
+
+    .dex-btn {
+      width: 100%;
+      height: 48px;
+      font-size: 1rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
     .hint {
       text-align: center;
       font-size: 0.78rem;
@@ -212,7 +263,7 @@ import { AuthService } from '../../services/auth.service';
     }
   `],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private auth = inject(AuthService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
@@ -226,6 +277,14 @@ export class LoginComponent {
   loading = signal(false);
   error = signal('');
 
+  ngOnInit(): void {
+    this.auth.sessionReady$.pipe(take(1)).subscribe(() => {
+      if (this.auth.isAuthenticated) {
+        this.router.navigate(['/boats'], { replaceUrl: true });
+      }
+    });
+  }
+
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -234,12 +293,17 @@ export class LoginComponent {
     this.loading.set(true);
     this.error.set('');
     const { username, password } = this.form.getRawValue();
-    const ok = this.auth.login(username, password);
-    this.loading.set(false);
-    if (ok) {
-      this.router.navigate(['/boats']);
-    } else {
-      this.error.set('Invalid credentials. Please try again.');
-    }
+    this.auth.login(username, password).subscribe(ok => {
+      this.loading.set(false);
+      if (ok) {
+        this.router.navigate(['/boats']);
+      } else {
+        this.error.set('Invalid credentials. Please try again.');
+      }
+    });
+  }
+
+  loginWithDex(): void {
+    window.location.href = '/oauth2/authorization/dex';
   }
 }

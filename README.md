@@ -621,3 +621,8 @@ Generate a complete and working .spec.ts file
 Include all necessary setup and mocks
 Ensure the test code is clean, maintainable, and production-ready
 ```
+
+12. Double Authentification
+```
+Authorize form login and oauth2, prior access to login page classic login by api and add button to redirect to oauth login page if signed with success with dex redirectTo: 'boats' no need to go on the angular form login page
+```

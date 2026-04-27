@@ -1,121 +1,152 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
 import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
   let service: AuthService;
+  let httpMock: HttpTestingController;
+
+  function flushMe(status = 401) {
+    const req = httpMock.expectOne('/api/auth/me');
+    req.flush({ error: 'Not authenticated' }, { status, statusText: 'Unauthorized' });
+  }
 
   beforeEach(() => {
-    sessionStorage.clear();
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
     service = TestBed.inject(AuthService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
-  afterEach(() => sessionStorage.clear());
+  afterEach(() => httpMock.verify());
 
   it('should be created', () => {
+    flushMe();
     expect(service).toBeTruthy();
   });
 
   describe('initial state', () => {
-    it('should not be authenticated when no session exists', () => {
+    it('should not be authenticated before /me resolves', () => {
       expect(service.isAuthenticated).toBe(false);
       expect(service.user()).toBeNull();
+      flushMe();
     });
 
-    it('should restore session from sessionStorage on init', () => {
-      sessionStorage.setItem('auth_user', JSON.stringify({ username: 'restored' }));
-      TestBed.resetTestingModule();
-      TestBed.configureTestingModule({});
-      const freshService = TestBed.inject(AuthService);
+    it('should restore session when /me returns a user', fakeAsync(() => {
+      const req = httpMock.expectOne('/api/auth/me');
+      req.flush({ username: 'restored', authenticated: true, roles: ['ROLE_USER'] });
+      tick();
 
-      expect(freshService.isAuthenticated).toBe(true);
-      expect(freshService.user()?.username).toBe('restored');
-    });
+      expect(service.isAuthenticated).toBe(true);
+      expect(service.user()?.username).toBe('restored');
+    }));
 
-    it('should handle corrupted sessionStorage gracefully', () => {
-      sessionStorage.setItem('auth_user', 'not-valid-json{{{');
-      TestBed.resetTestingModule();
-      TestBed.configureTestingModule({});
-      const freshService = TestBed.inject(AuthService);
+    it('should remain unauthenticated when /me returns 401', fakeAsync(() => {
+      flushMe(401);
+      tick();
 
-      expect(freshService.isAuthenticated).toBe(false);
-      expect(freshService.user()).toBeNull();
-    });
+      expect(service.isAuthenticated).toBe(false);
+      expect(service.user()).toBeNull();
+    }));
+
+    it('should emit on sessionReady$ after /me completes', fakeAsync(() => {
+      let emitted = false;
+      service.sessionReady$.subscribe(() => (emitted = true));
+      flushMe();
+      tick();
+
+      expect(emitted).toBe(true);
+    }));
   });
 
   describe('login()', () => {
-    it('should return true and set user signal on valid credentials', () => {
-      const result = service.login('admin', 'password');
+    beforeEach(() => flushMe());
+
+    it('should return true and set user signal on success', fakeAsync(() => {
+      let result: boolean | undefined;
+      service.login('admin', 'password').subscribe(ok => (result = ok));
+
+      const req = httpMock.expectOne('/api/auth/login');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ username: 'admin', password: 'password' });
+      req.flush({ username: 'admin', authenticated: true, roles: ['ROLE_ADMIN'] });
+      tick();
 
       expect(result).toBe(true);
       expect(service.isAuthenticated).toBe(true);
       expect(service.user()?.username).toBe('admin');
-    });
+    }));
 
-    it('should persist user to sessionStorage on login', () => {
-      service.login('captain', 'secret');
+    it('should return false and clear user on 401', fakeAsync(() => {
+      let result: boolean | undefined;
+      service.login('admin', 'wrong').subscribe(ok => (result = ok));
 
-      const stored = JSON.parse(sessionStorage.getItem('auth_user')!);
-      expect(stored.username).toBe('captain');
-    });
-
-    it('should return false when username is empty', () => {
-      const result = service.login('', 'password');
+      const req = httpMock.expectOne('/api/auth/login');
+      req.flush({ error: 'Invalid' }, { status: 401, statusText: 'Unauthorized' });
+      tick();
 
       expect(result).toBe(false);
       expect(service.isAuthenticated).toBe(false);
-    });
-
-    it('should return false when password is empty', () => {
-      const result = service.login('admin', '');
-
-      expect(result).toBe(false);
-      expect(service.isAuthenticated).toBe(false);
-    });
-
-    it('should return false when both credentials are empty', () => {
-      const result = service.login('', '');
-
-      expect(result).toBe(false);
-    });
-
-    it('should accept any non-empty username/password combination', () => {
-      expect(service.login('x', 'y')).toBe(true);
-    });
+    }));
   });
 
   describe('logout()', () => {
-    it('should clear user signal and sessionStorage on logout', () => {
-      service.login('admin', 'pass');
+    it('should clear user signal and call /api/auth/logout', fakeAsync(() => {
+      // Restore session first
+      const meReq = httpMock.expectOne('/api/auth/me');
+      meReq.flush({ username: 'admin', authenticated: true, roles: [] });
+      tick();
+
       service.logout();
+
+      const logoutReq = httpMock.expectOne('/api/auth/logout');
+      expect(logoutReq.request.method).toBe('POST');
+      logoutReq.flush({});
 
       expect(service.isAuthenticated).toBe(false);
       expect(service.user()).toBeNull();
-      expect(sessionStorage.getItem('auth_user')).toBeNull();
-    });
+    }));
 
-    it('should be idempotent — calling logout twice does not throw', () => {
+    it('should be idempotent — calling logout twice does not throw', fakeAsync(() => {
+      flushMe();
+      tick();
+
       expect(() => {
         service.logout();
+        const r1 = httpMock.expectOne('/api/auth/logout');
+        r1.flush({});
         service.logout();
+        const r2 = httpMock.expectOne('/api/auth/logout');
+        r2.flush({});
       }).not.toThrow();
-    });
+    }));
   });
 
   describe('user signal reactivity', () => {
-    it('should update user signal after login', () => {
+    it('should update user signal after successful login', fakeAsync(() => {
+      flushMe();
       expect(service.user()).toBeNull();
 
-      service.login('sailor', 'anchor');
+      service.login('sailor', 'anchor').subscribe();
+      const req = httpMock.expectOne('/api/auth/login');
+      req.flush({ username: 'sailor', authenticated: true, roles: [] });
+      tick();
 
-      expect(service.user()).toEqual({ username: 'sailor' });
-    });
+      expect(service.user()).toEqual({ username: 'sailor', roles: [] });
+    }));
 
-    it('should reset user signal to null after logout', () => {
-      service.login('sailor', 'anchor');
+    it('should reset user signal to null after logout', fakeAsync(() => {
+      const meReq = httpMock.expectOne('/api/auth/me');
+      meReq.flush({ username: 'sailor', authenticated: true, roles: [] });
+      tick();
+
       service.logout();
+      const logoutReq = httpMock.expectOne('/api/auth/logout');
+      logoutReq.flush({});
 
       expect(service.user()).toBeNull();
-    });
+    }));
   });
 });
