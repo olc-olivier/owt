@@ -24,7 +24,7 @@ import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 
 import { DatePipe } from '@angular/common';
-import { Boat, CreateBoatRequest } from '../../models/boat.model';
+import { Boat, BoatStats, CreateBoatRequest } from '../../models/boat.model';
 import { BoatService } from '../../services/boat.service';
 import { BoatAuditComponent } from './boat-audit.component';
 import { BoatDeleteDialogComponent } from './boat-delete-dialog.component';
@@ -67,7 +67,7 @@ import {
             <mat-icon>directions_boat</mat-icon>
           </div>
           <div>
-            <div class="stat-value">{{ boats().length }}</div>
+            <div class="stat-value">{{ fleetStats()?.totalBoats ?? totalElements() }}</div>
             <div class="stat-label">Total Boats</div>
           </div>
         </div>
@@ -317,12 +317,15 @@ import {
             </table>
           </div>
 
-          <mat-paginator
-            [pageSizeOptions]="[10, 25, 50]"
-            pageSize="10"
-            showFirstLastButtons
-          />
         }
+
+        <mat-paginator
+          [length]="totalElements()"
+          [pageSize]="10"
+          [pageSizeOptions]="[10, 25, 50]"
+          showFirstLastButtons
+          (page)="onPageChange($event)"
+        />
       </div>
     </div>
   `,
@@ -670,56 +673,59 @@ export class BoatListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  /** Full list of boats returned by the last successful API call. */
   boats = signal<Boat[]>([]);
-  /** `true` while the initial load or a reload is in progress. */
   loading = signal(true);
-  /** Non-empty string when the API call failed. */
   error = signal('');
-  /** Current text entered in the search field, kept in sync by {@link applyFilter}. */
+  /** Server-reported total across all pages — drives the paginator `[length]` binding. */
+  totalElements = signal(0);
+  fleetStats = signal<BoatStats | null>(null);
   filterValue = '';
 
-  /** `MatTableDataSource` driving the Material table — supports sort, paginator, and filter. */
+  private currentPage = 0;
+  private currentPageSize = 10;
+
   dataSource = new MatTableDataSource<Boat>([]);
-  /** Ordered list of column keys rendered by the table. */
   readonly columns = ['name', 'description', 'length', 'capacity', 'yearBuilt', 'ownerName', 'createdBy', 'createdDate', 'lastModifiedBy', 'lastModifiedDate', 'actions'];
 
-  /** Sum of all boat capacities. Recomputed reactively when {@link boats} changes. */
-  totalCapacity = computed(() => this.boats().reduce((s, b) => s + b.capacity, 0));
-  /** Average length in metres across all boats. Returns `0` when the list is empty. */
-  avgLength = computed(() => {
-    const b = this.boats();
-    return b.length ? b.reduce((s, x) => s + x.length, 0) / b.length : 0;
-  });
-  /** Number of distinct owner names in the fleet. */
-  uniqueOwners = computed(() => new Set(this.boats().map(b => b.ownerName)).size);
+  totalCapacity = computed(() => this.fleetStats()?.totalCapacity ?? 0);
+  avgLength = computed(() => this.fleetStats()?.avgLength ?? 0);
+  uniqueOwners = computed(() => this.fleetStats()?.uniqueOwners ?? 0);
 
-  /** Triggers the initial data load. */
   ngOnInit(): void {
-    this.load();
+    this.load(0, this.currentPageSize);
+    this.loadStats();
   }
 
-  /** Wires the sort and paginator into the data source and configures the filter predicate. */
+  loadStats(): void {
+    this.boatService.getStats().subscribe({
+      next: stats => this.fleetStats.set(stats),
+      error: () => {},
+    });
+  }
+
   ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
-    this.dataSource.paginator = this.paginator;
     this.dataSource.filterPredicate = (row, filter) => {
       const f = filter.toLowerCase();
       return row.name.toLowerCase().includes(f) || row.description.toLowerCase().includes(f);
     };
   }
 
-  /**
-   * Fetches all boats from the server and refreshes the table and stats signals.
-   * Resets the loading and error states before each request.
-   */
-  load(): void {
+  /** Called by the `(page)` event of `mat-paginator`. */
+  onPageChange(event: { pageIndex: number; pageSize: number; length: number }): void {
+    this.currentPage = event.pageIndex;
+    this.currentPageSize = event.pageSize;
+    this.load(this.currentPage, this.currentPageSize);
+  }
+
+  load(page = this.currentPage, size = this.currentPageSize): void {
     this.loading.set(true);
     this.error.set('');
-    this.boatService.getAll().subscribe({
-      next: (data) => {
-        this.boats.set(data);
-        this.dataSource.data = data;
+    this.boatService.getAll(page, size).subscribe({
+      next: ({ boats, total }) => {
+        this.boats.set(boats);
+        this.dataSource.data = boats;
+        this.totalElements.set(total);
         this.loading.set(false);
       },
       error: (err: Error) => {
@@ -772,7 +778,7 @@ export class BoatListComponent implements OnInit, AfterViewInit {
     ref.afterClosed().subscribe((result: CreateBoatRequest | undefined) => {
       if (!result) return;
       this.boatService.create(result).subscribe({
-        next: () => { this.load(); this.notify('Boat added successfully'); },
+        next: () => { this.currentPage = 0; this.load(0, this.currentPageSize); this.loadStats(); this.notify('Boat added successfully'); },
         error: (err: Error) => this.notify(err.message, true),
       });
     });
@@ -818,7 +824,7 @@ export class BoatListComponent implements OnInit, AfterViewInit {
     ref.afterClosed().subscribe((confirmed: boolean) => {
       if (!confirmed) return;
       this.boatService.delete(boat.id).subscribe({
-        next: () => { this.load(); this.notify('Boat deleted'); },
+        next: () => { this.load(); this.loadStats(); this.notify('Boat deleted'); },
         error: (err: Error) => this.notify(err.message, true),
       });
     });

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { Boat, BoatPageResponse, CreateBoatRequest, UpdateBoatRequest } from '../models/boat.model';
+import { Boat, BoatPageResponse, BoatStats, CreateBoatRequest, UpdateBoatRequest } from '../models/boat.model';
 
 /**
  * Data-access service for the `/api/boats` REST endpoint.
@@ -36,10 +36,13 @@ export class BoatService {
    * @param size - Maximum number of items to return (default `200`).
    * @returns Observable of the boat array for the requested page.
    */
-  getAll(page = 0, size = 200): Observable<Boat[]> {
+  getAll(page = 0, size = 10): Observable<{ boats: Boat[]; total: number }> {
     const params = new HttpParams().set('page', page).set('size', size);
     return this.http.get<BoatPageResponse>(this.base, { params }).pipe(
-      map(r => r._embedded?.boatResponseList ?? [])
+      map(r => ({
+        boats: r._embedded?.boatResponseList ?? [],
+        total: r.page?.totalElements ?? 0,
+      }))
     );
   }
 
@@ -80,6 +83,10 @@ export class BoatService {
    * @param id - ID of the boat to delete.
    * @returns Observable that completes with no value on success.
    */
+  getStats(): Observable<BoatStats> {
+    return this.http.get<BoatStats>(`${this.base}/stats`);
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
   }

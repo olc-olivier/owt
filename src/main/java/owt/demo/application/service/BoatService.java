@@ -6,6 +6,7 @@ import owt.demo.domain.exception.EntityNotFoundException;
 import owt.demo.dto.request.CreateBoatRequest;
 import owt.demo.dto.request.UpdateBoatRequest;
 import owt.demo.dto.response.BoatResponse;
+import owt.demo.dto.response.BoatStatsResponse;
 import owt.demo.mapper.BoatMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -59,6 +60,16 @@ public class BoatService {
         boatMapper.updateEntityFromRequest(request, boat);
         Boat updated = boatRepository.save(boat);
         return boatMapper.toResponse(updated);
+    }
+
+    public BoatStatsResponse getStats() {
+        Object[] row = boatRepository.computeStats().get(0);
+        return new BoatStatsResponse(
+                ((Number) row[0]).longValue(),
+                row[1] != null ? ((Number) row[1]).longValue() : 0L,
+                row[2] != null ? ((Number) row[2]).doubleValue() : 0.0,
+                ((Number) row[3]).longValue()
+        );
     }
 
     public void deleteBoat(Long id) {

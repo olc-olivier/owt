@@ -4,6 +4,7 @@ import owt.demo.application.service.BoatService;
 import owt.demo.dto.request.CreateBoatRequest;
 import owt.demo.dto.request.UpdateBoatRequest;
 import owt.demo.dto.response.BoatResponse;
+import owt.demo.dto.response.BoatStatsResponse;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +47,11 @@ public class BoatController {
         Page<BoatResponse> page = boatService.getAllBoats(pageable);
         PagedModel<EntityModel<BoatResponse>> model = pagedResourcesAssembler.toModel(page);
         return ResponseEntity.ok(model);
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<BoatStatsResponse> getStats() {
+        return ResponseEntity.ok(boatService.getStats());
     }
 
     @GetMapping("/description/{description}")

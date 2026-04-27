@@ -28,13 +28,21 @@ const BOAT_C: Boat = {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function createBoatServiceMock(boats: Boat[] = [BOAT_A, BOAT_B]) {
+const MOCK_FLEET_STATS = {
+  totalBoats: 30,
+  totalCapacity: 240,
+  avgLength: 11.5,
+  uniqueOwners: 8,
+};
+
+function createBoatServiceMock(boats: Boat[] = [BOAT_A, BOAT_B], total = 30) {
   return {
-    getAll: jest.fn().mockReturnValue(of(boats)),
+    getAll: jest.fn().mockReturnValue(of({ boats, total })),
     getById: jest.fn().mockReturnValue(of(boats[0])),
     create: jest.fn().mockReturnValue(of({ ...BOAT_A, id: 99 })),
     update: jest.fn().mockReturnValue(of(BOAT_A)),
     delete: jest.fn().mockReturnValue(of(void 0)),
+    getStats: jest.fn().mockReturnValue(of(MOCK_FLEET_STATS)),
   };
 }
 
@@ -133,21 +141,27 @@ describe('BoatListComponent', () => {
   // ── Stats cards ───────────────────────────────────────────────────────────
 
   describe('stats cards', () => {
-    it('should display the total number of boats', async () => {
-      const { fixture } = await setupComponent([BOAT_A, BOAT_B, BOAT_C]);
-      expect(fixture.nativeElement.textContent).toContain('3');
+    it('should display fleet-wide total boats from getStats (not current page count)', async () => {
+      // Page has 1 boat but fleet has 30 — stat card must show 30
+      const { fixture } = await setupComponent([BOAT_A]);
+      expect(fixture.nativeElement.textContent).toContain('30');
     });
 
-    it('should sum capacities correctly', async () => {
-      const { fixture } = await setupComponent([BOAT_A, BOAT_B]);
-      // capacity 8 + 4 = 12
-      expect(fixture.nativeElement.textContent).toContain('12');
+    it('should display fleet-wide total capacity from getStats', async () => {
+      // MOCK_FLEET_STATS.totalCapacity = 240 — independent of page boats
+      const { fixture } = await setupComponent([BOAT_A]);
+      expect(fixture.nativeElement.textContent).toContain('240');
     });
 
-    it('should count unique owners', async () => {
-      const { fixture } = await setupComponent([BOAT_A, BOAT_B, BOAT_C]);
-      // Alice × 2, Bob × 1 → 2 unique
-      expect(fixture.nativeElement.textContent).toContain('2');
+    it('should display fleet-wide unique owners count from getStats', async () => {
+      // MOCK_FLEET_STATS.uniqueOwners = 8
+      const { fixture } = await setupComponent([BOAT_A]);
+      expect(fixture.nativeElement.textContent).toContain('8');
+    });
+
+    it('should call getStats() on initialisation', async () => {
+      const { boatSvc } = await setupComponent([BOAT_A]);
+      expect(boatSvc.getStats).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -233,6 +247,7 @@ describe('BoatListComponent', () => {
       const boatSvc = {
         ...createBoatServiceMock(),
         getAll: jest.fn().mockReturnValue(throwError(() => new Error('Network error'))),
+        getStats: jest.fn().mockReturnValue(of(MOCK_FLEET_STATS)),
       };
 
       await TestBed.configureTestingModule({
@@ -441,22 +456,59 @@ describe('BoatListComponent', () => {
     });
   });
 
-  // ── Large datasets ────────────────────────────────────────────────────────
+  // ── Pagination ────────────────────────────────────────────────────────────
 
-  describe('large datasets', () => {
-    it('should handle 100 boats without errors and paginate correctly', async () => {
-      const manyBoats: Boat[] = Array.from({ length: 100 }, (_, i) => ({
+  describe('pagination', () => {
+    function makeFleet(count: number): Boat[] {
+      return Array.from({ length: count }, (_, i) => ({
         id: i + 1, name: `Boat ${i + 1}`, description: `Desc ${i + 1}`,
-        length: 10 + i, capacity: i + 1, yearBuilt: 2000 + (i % 25),
-        ownerName: `Owner ${i % 10}`,
+        length: 10, capacity: 4, yearBuilt: 2010, ownerName: `Owner ${i % 5}`,
       }));
+    }
 
-      const { fixture } = await setupComponent(manyBoats);
+    it('should request page 0 with size 10 on initial load (server-side)', async () => {
+      const { boatSvc } = await setupComponent(makeFleet(10));
+      // Server-side pagination: must pass page index and page size explicitly
+      expect(boatSvc.getAll).toHaveBeenCalledWith(0, 10);
+    });
 
-      // Paginator shows 10 per page by default → max 10 visible rows
-      expect(getTableRows(fixture).length).toBeLessThanOrEqual(10);
-      // Stats card shows total count
-      expect(fixture.nativeElement.textContent).toContain('100');
+    it('should show exactly 10 rows when the server returns a page of 10 boats', async () => {
+      const { fixture } = await setupComponent(makeFleet(10));
+      expect(getTableRows(fixture).length).toBe(10);
+    });
+
+    it('should set paginator length to totalElements from the server (30), not just page size', async () => {
+      const { fixture } = await setupComponent(makeFleet(10));
+      // The server told us totalElements = 30; paginator.length must reflect that
+      const component = fixture.componentInstance;
+      expect(component.totalElements()).toBe(30);
+    });
+
+    it('should request page 1 with size 10 when the user navigates to page 2', async () => {
+      const { fixture, boatSvc } = await setupComponent(makeFleet(10));
+      const component = fixture.componentInstance;
+
+      // Simulate paginator page change (user clicked "next page")
+      component.onPageChange({ pageIndex: 1, pageSize: 10, length: 30 });
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(boatSvc.getAll).toHaveBeenCalledWith(1, 10);
+    });
+
+    it('should reload from page 0 after adding a boat', async () => {
+      const newBoat = {
+        name: 'New', description: 'New', length: 10,
+        capacity: 4, yearBuilt: 2023, ownerName: 'Alice',
+      };
+      const { fixture, boatSvc, dialogMock } = await setupComponent(makeFleet(10), newBoat);
+      boatSvc.getAll.mockClear();
+
+      click(fixture, 'button.add-btn');
+      await fixture.whenStable();
+
+      // After creation, reload must start from page 0 with current pageSize
+      expect(boatSvc.getAll).toHaveBeenCalledWith(0, 10);
     });
   });
 });

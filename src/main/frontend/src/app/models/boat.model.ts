@@ -84,3 +84,10 @@ export interface CreateBoatRequest {
  * @category Models
  */
 export type UpdateBoatRequest = Partial<CreateBoatRequest>;
+
+export interface BoatStats {
+  totalBoats: number;
+  totalCapacity: number;
+  avgLength: number;
+  uniqueOwners: number;
+}

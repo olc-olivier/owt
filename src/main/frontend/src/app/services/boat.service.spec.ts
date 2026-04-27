@@ -41,30 +41,30 @@ describe('BoatService', () => {
   });
 
   describe('getAll()', () => {
-    it('should GET /api/boats with default pagination and return boat array', () => {
-      let result: Boat[] | undefined;
+    it('should GET /api/boats with default pagination and return boats + total', () => {
+      let result: { boats: Boat[]; total: number } | undefined;
 
-      service.getAll().subscribe(boats => (result = boats));
+      service.getAll().subscribe(r => (result = r));
 
       const req = httpMock.expectOne(r => r.url === '/api/boats');
       expect(req.request.method).toBe('GET');
       expect(req.request.params.get('page')).toBe('0');
-      expect(req.request.params.get('size')).toBe('200');
+      expect(req.request.params.get('size')).toBe('10');
       req.flush(MOCK_PAGE);
 
-      expect(result).toEqual([MOCK_BOAT]);
+      expect(result).toEqual({ boats: [MOCK_BOAT], total: 1 });
     });
 
-    it('should return an empty array when _embedded is absent', () => {
-      let result: Boat[] | undefined;
+    it('should return empty boats and total 0 when _embedded is absent', () => {
+      let result: { boats: Boat[]; total: number } | undefined;
 
-      service.getAll().subscribe(boats => (result = boats));
+      service.getAll().subscribe(r => (result = r));
 
       httpMock.expectOne(r => r.url === '/api/boats').flush({
-        page: { size: 200, totalElements: 0, totalPages: 0, number: 0 },
+        page: { size: 10, totalElements: 0, totalPages: 0, number: 0 },
       } as BoatPageResponse);
 
-      expect(result).toEqual([]);
+      expect(result).toEqual({ boats: [], total: 0 });
     });
 
     it('should pass custom page and size parameters', () => {
