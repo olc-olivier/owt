@@ -1,0 +1,33 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+
+  "name": "BoatFleet – Frontend API",
+  "out": "docs/typedoc",
+
+  "entryPoints": ["src/app/**/*.ts"],
+  "entryPointStrategy": "expand",
+  "exclude": ["**/*.spec.ts", "**/jest-setup.ts"],
+
+  "tsconfig": "tsconfig.doc.json",
+  "readme": "none",
+
+  "plugin": ["typedoc-plugin-mdn-links"],
+
+  "categorizeByGroup": true,
+  "groupOrder": ["Components", "Services", "Guards", "Models", "Configuration", "*"],
+  "sort": ["source-order"],
+
+  "includeVersion": true,
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeExternals": true,
+  "excludeInternal": false,
+
+  "searchInComments": true,
+  "searchInDocuments": true,
+
+  "navigationLinks": {
+    "GitHub": "https://github.com/olivier74/owt",
+    "Swagger UI": "http://localhost:8080/swagger-ui/index.html"
+  }
+}

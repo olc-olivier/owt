@@ -1,0 +1,24 @@
+# .github/workflows/docs.yml
+jobs:
+  generate-docs:
+    steps:
+      # Angular
+      - run: npm run docs
+      # Java - Build the app
+      - run: mvn clean package -DskipTests
+      # Start Spring Boot app in background
+      - run: |
+          java -jar target/demo-*.jar &
+          sleep 10
+          # Wait for app to be ready
+          until curl -f http://localhost:8080/actuator/health; do sleep 1; done
+      # Generate OpenAPI docs from running app
+      - run: mvn springdoc-openapi:generate
+      # Kill the app
+      - run: pkill -f "java -jar target/demo-.*jar"
+        if: always()
+      # Deploy to GitHub Pages or S3
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: docs/

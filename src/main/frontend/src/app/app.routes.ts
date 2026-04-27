@@ -1,6 +1,22 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 
+/**
+ * Application-level route configuration.
+ *
+ * | Path       | Component           | Guard       | Notes                        |
+ * |------------|---------------------|-------------|------------------------------|
+ * | `/`        | —                   | —           | Redirects to `/boats`        |
+ * | `/login`   | `LoginComponent`    | —           | Public                       |
+ * | `/boats`   | `BoatListComponent` | `authGuard` | Requires active session      |
+ * | `**`       | —                   | —           | Redirects to `/boats`        |
+ *
+ * All feature components are **lazy-loaded** via `loadComponent` to keep the
+ * initial bundle small.
+ *
+ * @category Configuration
+ */
+
 export const routes: Routes = [
   { path: '', redirectTo: 'boats', pathMatch: 'full' },
   {

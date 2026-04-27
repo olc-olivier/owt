@@ -297,6 +297,25 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-maven-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <id>generate-openapi-docs</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <phase>none</phase>
+            <configuration>
+              <apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
+              <outputFileName>openapi.json</outputFileName>
+              <outputDir>${project.basedir}/docs</outputDir>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 

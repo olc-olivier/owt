@@ -9,15 +9,49 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { Boat, CreateBoatRequest } from '../../models/boat.model';
 
+/**
+ * Input data injected into {@link BoatDetailDialogComponent} via `MAT_DIALOG_DATA`.
+ *
+ * @category Components
+ */
 export interface DetailDialogData {
+  /** The boat whose details are displayed. */
   boat: Boat;
 }
 
+/**
+ * Value emitted by the dialog when it closes with an action.
+ *
+ * @category Components
+ */
 export interface DetailDialogResult {
+  /** Whether the user chose to edit or delete the boat. */
   action: 'edit' | 'delete';
+  /** Updated boat fields when `action === 'edit'`. */
   data?: CreateBoatRequest;
 }
 
+/**
+ * Detail dialog for viewing and inline-editing a single boat.
+ *
+ * Selector: `app-boat-detail-dialog`
+ *
+ * Displays boat metadata in read-only view by default. An **Edit** button
+ * switches to an inline reactive form. The dialog closes with a
+ * {@link DetailDialogResult} when the user saves changes or requests deletion,
+ * or `undefined` when they dismiss without action.
+ *
+ * @example
+ * ```typescript
+ * const ref = this.dialog.open(BoatDetailDialogComponent, { data: { boat } });
+ * ref.afterClosed().subscribe((result: DetailDialogResult | undefined) => {
+ *   if (result?.action === 'edit')   this.boatService.update(boat.id, result.data!).subscribe(...);
+ *   if (result?.action === 'delete') this.boatService.delete(boat.id).subscribe(...);
+ * });
+ * ```
+ *
+ * @category Components
+ */
 @Component({
   selector: 'app-boat-detail-dialog',
   standalone: true,

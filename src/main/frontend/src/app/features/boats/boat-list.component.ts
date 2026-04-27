@@ -585,6 +585,22 @@ import {
     }
   `],
 })
+/**
+ * Main page for browsing and managing the boat fleet.
+ *
+ * Selector: `app-boat-list`
+ *
+ * Displays a stats summary row (total boats, total capacity, average length,
+ * unique owners) followed by a sortable, paginated Material table.  Rows can
+ * be searched by name or description in real time.
+ *
+ * **CRUD operations** are handled through three dialogs:
+ * - {@link BoatFormDialogComponent} – create and edit.
+ * - {@link BoatDetailDialogComponent} – view detail with inline edit option.
+ * - {@link BoatDeleteDialogComponent} – delete confirmation.
+ *
+ * @category Components
+ */
 export class BoatListComponent implements OnInit, AfterViewInit {
   private boatService = inject(BoatService);
   private dialog = inject(MatDialog);
@@ -593,25 +609,36 @@ export class BoatListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
+  /** Full list of boats returned by the last successful API call. */
   boats = signal<Boat[]>([]);
+  /** `true` while the initial load or a reload is in progress. */
   loading = signal(true);
+  /** Non-empty string when the API call failed. */
   error = signal('');
+  /** Current text entered in the search field, kept in sync by {@link applyFilter}. */
   filterValue = '';
 
+  /** `MatTableDataSource` driving the Material table — supports sort, paginator, and filter. */
   dataSource = new MatTableDataSource<Boat>([]);
+  /** Ordered list of column keys rendered by the table. */
   readonly columns = ['name', 'description', 'length', 'capacity', 'yearBuilt', 'ownerName', 'actions'];
 
+  /** Sum of all boat capacities. Recomputed reactively when {@link boats} changes. */
   totalCapacity = computed(() => this.boats().reduce((s, b) => s + b.capacity, 0));
+  /** Average length in metres across all boats. Returns `0` when the list is empty. */
   avgLength = computed(() => {
     const b = this.boats();
     return b.length ? b.reduce((s, x) => s + x.length, 0) / b.length : 0;
   });
+  /** Number of distinct owner names in the fleet. */
   uniqueOwners = computed(() => new Set(this.boats().map(b => b.ownerName)).size);
 
+  /** Triggers the initial data load. */
   ngOnInit(): void {
     this.load();
   }
 
+  /** Wires the sort and paginator into the data source and configures the filter predicate. */
   ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
@@ -621,6 +648,10 @@ export class BoatListComponent implements OnInit, AfterViewInit {
     };
   }
 
+  /**
+   * Fetches all boats from the server and refreshes the table and stats signals.
+   * Resets the loading and error states before each request.
+   */
   load(): void {
     this.loading.set(true);
     this.error.set('');
@@ -637,16 +668,24 @@ export class BoatListComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /**
+   * Filters the table rows by the provided search string.
+   * Matches against both `name` and `description` (case-insensitive).
+   *
+   * @param value - The search string typed by the user.
+   */
   applyFilter(value: string): void {
     this.filterValue = value;
     this.dataSource.filter = value.trim().toLowerCase();
   }
 
+  /** Clears the active search filter and shows all rows. */
   clearFilter(): void {
     this.filterValue = '';
     this.applyFilter('');
   }
 
+  /** Opens the {@link BoatFormDialogComponent} in create mode. */
   openAdd(): void {
     const ref = this.dialog.open(BoatFormDialogComponent, {
       data: {},
@@ -662,6 +701,13 @@ export class BoatListComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /**
+   * Opens the {@link BoatFormDialogComponent} pre-filled with the given boat's data.
+   *
+   * @param boat - The boat to edit.
+   * @param event - The originating DOM event; propagation is stopped to avoid
+   *   triggering the row's `(click)` handler.
+   */
   openEdit(boat: Boat, event: Event): void {
     event.stopPropagation();
     const ref = this.dialog.open(BoatFormDialogComponent, {
@@ -678,6 +724,13 @@ export class BoatListComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /**
+   * Opens the {@link BoatDeleteDialogComponent} for the given boat.
+   *
+   * @param boat - The boat to delete.
+   * @param event - The originating DOM event; propagation is stopped to avoid
+   *   triggering the row's `(click)` handler.
+   */
   openDelete(boat: Boat, event: Event): void {
     event.stopPropagation();
     const ref = this.dialog.open(BoatDeleteDialogComponent, {
@@ -694,6 +747,13 @@ export class BoatListComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /**
+   * Opens the {@link BoatDetailDialogComponent} for the given boat.
+   * If the dialog closes with an edit or delete action, the corresponding
+   * operation is executed immediately.
+   *
+   * @param boat - The boat whose details to display.
+   */
   openDetail(boat: Boat): void {
     const ref = this.dialog.open(BoatDetailDialogComponent, {
       data: { boat },
@@ -714,6 +774,12 @@ export class BoatListComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /**
+   * Displays a brief snack-bar notification to the user.
+   *
+   * @param msg - The message to display.
+   * @param isError - When `true` applies error styling; defaults to `false`.
+   */
   private notify(msg: string, isError = false): void {
     this.snackBar.open(msg, 'OK', {
       duration: 3000,

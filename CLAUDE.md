@@ -63,7 +63,12 @@ mvn test
 
 **Run only Java tests:**
 ```bash
-mvn test -DskipTests=false -Dskip.npm.tests=true
+mvn test -DskipNpmTests=true
+```
+
+**Run only npm tests:**
+```bash
+mvn test -DskipTests=true
 ```
 
 **Build and run both test suites:**
@@ -190,6 +195,64 @@ The integration testing framework now includes AI-powered validation using Claud
 - **Intelligent Assessment** - Understands if examples achieved their intended purpose
 - **Context-Aware** - Uses README documentation for validation context
 - **Cost Efficient** - ~100 tokens per validation with high cache utilization
+
+## Development Notes
+
+- Use the integration testing framework for comprehensive example testing and validation
+- A Maven wrapper 
+- Examples demonstrate the CRUD operations for the boats fleet
+- Complex examples should include integration tests for CI/CD validation
+
+## Documentation Generation
+
+### Angular API Documentation (TypeDoc)
+
+Generate TypeScript documentation for Angular components and services:
+
+```bash
+cd src/main/frontend
+npm run docs
+```
+
+Output: `src/main/frontend/docs/typedoc/index.html`
+
+**Configuration Files:**
+- `src/main/frontend/tsconfig.doc.json` - TypeScript compiler options
+- `src/main/frontend/typedoc.json` - TypeDoc configuration
+
+### Java API Documentation (OpenAPI/Swagger)
+
+Generate OpenAPI specification for REST API:
+
+1. Build and start the application:
+```bash
+./mvnw clean package
+./mvnw spring-boot:run
+```
+
+2. Generate OpenAPI docs:
+```bash
+./mvnw springdoc-openapi:generate
+```
+
+Output: `docs/openapi.json`
+
+Access Swagger UI: `http://localhost:8080/swagger-ui.html`
+
+**Configuration:**
+- `pom.xml` - `springdoc-openapi-maven-plugin` and `springdoc-openapi-starter-webmvc-ui` dependency
+- `src/main/resources/application.yml` - OpenAPI configuration
+
+### CI/CD Documentation Workflow
+
+The GitHub Actions workflow `.github/workflows/docs.yml` automatically generates both Angular and Java documentation on each commit.
+
+**Test Data:**
+
+Fleet includes 30 pre-loaded boats with 4 test users in `src/main/resources/data.sql`:
+- Users: admin, john_doe, jane_smith, bob_wilson (password: `password`)
+- Boats: Variety of sailboats, motor yachts, speedboats, catamarans, and fishing boats
+- Pre-populated sequences start at ID 100 for new records
 
 ## Development Notes
 

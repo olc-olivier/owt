@@ -22,12 +22,12 @@ overview (UC2).
 
 |UseCase|Frontend|Backend|
 |:------|:-------|:------|
-|**UC1**|:negative_squared_cross_mark:|:parking:|
-|**UC2**|:parking:|:white_check_mark:|
-|**UC3**|:parking:|:white_check_mark:|
-|**UC4**|:parking:|:white_check_mark:|
-|UC5|:parking:|:white_check_mark:|
-|UC6|:parking:|:white_check_mark:|
+|**UC1**|:white_check_mark:|:white_check_mark:|
+|**UC2**|:white_check_mark:|:white_check_mark:|
+|**UC3**|:white_check_mark:|:white_check_mark:|
+|**UC4**|:white_check_mark:|:white_check_mark:|
+|UC5|:white_check_mark:|:white_check_mark:|
+|UC6|:white_check_mark:|:white_check_mark:|
 
 
 ## Technical Requirements
@@ -80,7 +80,9 @@ AI_USAGE.md — What to document
 7. Errors/Logs centric manangement (???) -> OpenTelemetry
 8. Responsive UI (mobile-friendly) -> Google Material :white_check_mark:
 9. Application as a Docker Container :white_check_mark:
-10. Generate the Documentation
+10. Generate the Documentation :white_check_mark:
+11. Integrated testing (Maven + npm) :white_check_mark:
+12. Expanded test data (30 boats) :white_check_mark:
 
 Bonus
 - Enable Audittrail on the entity
@@ -98,6 +100,51 @@ PROS/CONS AI Usage..
 
 To see during the iteration, opinion could change...
 
+## Documentation
+
+### Angular Documentation (TypeDoc)
+
+Generate TypeScript API documentation for the Angular frontend (Angular documentation at http://localhost:3000):
+```bash
+cd src/main/frontend
+npm install
+npm run docs
+```
+
+Output: `docs/typedoc/` directory with HTML documentation.
+
+**Configuration:** `tsconfig.doc.json` and `typedoc.json`
+
+### Java Documentation (OpenAPI/Swagger)
+
+Generate OpenAPI specification for the Spring Boot REST API:
+
+```bash
+# Start the application
+./mvnw spring-boot:run
+
+# In another terminal, generate OpenAPI docs
+./mvnw springdoc-openapi:generate
+```
+
+Output: `docs/openapi.json` - accessible via Swagger UI at `http://localhost:8080/swagger-ui.html`
+
+**Configuration:** `springdoc-openapi-maven-plugin` in `pom.xml`
+
+### Test Documentation
+
+Run all tests (Java + npm integrated):
+
+```bash
+mvn test                                          # Run all tests
+mvn test -DskipNpmTests=true                     # Java tests only
+mvn test -DskipTests=true                        # npm tests only
+mvn clean verify                                 # Build + tests
+```
+
+**Test Data:** 30 pre-loaded boats + 4 test users in `src/main/resources/data.sql`
+
+---
 
 ## Miscellaneous
 

@@ -9,6 +9,22 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../services/auth.service';
 
+/**
+ * Full-page login form for the BoatFleet application.
+ *
+ * Selector: `app-login`
+ *
+ * Validates that both username and password are non-empty before calling
+ * {@link AuthService.login}. On success the user is navigated to `/boats`.
+ * On failure an inline error message is displayed.
+ *
+ * **Features:**
+ * - Reactive form with required-field validation.
+ * - Password visibility toggle.
+ * - Loading state while the authentication call is in progress.
+ *
+ * @category Components
+ */
 @Component({
   selector: 'app-login',
   standalone: true,

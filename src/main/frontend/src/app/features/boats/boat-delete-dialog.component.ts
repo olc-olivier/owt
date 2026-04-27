@@ -4,9 +4,35 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Boat } from '../../models/boat.model';
 
+/**
+ * Input data injected into {@link BoatDeleteDialogComponent} via `MAT_DIALOG_DATA`.
+ *
+ * @category Components
+ */
 export interface DeleteDialogData {
+  /** The boat the user is about to delete. Used to show the boat name in the confirmation message. */
   boat: Boat;
 }
+
+/**
+ * Confirmation dialog shown before permanently deleting a boat.
+ *
+ * Selector: `app-boat-delete-dialog`
+ *
+ * Open this dialog via `MatDialog.open(BoatDeleteDialogComponent, { data: { boat } })`.
+ * The dialog closes with `true` when the user confirms deletion, or `undefined`
+ * when they cancel.
+ *
+ * @example
+ * ```typescript
+ * const ref = this.dialog.open(BoatDeleteDialogComponent, { data: { boat } });
+ * ref.afterClosed().subscribe(confirmed => {
+ *   if (confirmed) this.boatService.delete(boat.id).subscribe(...);
+ * });
+ * ```
+ *
+ * @category Components
+ */
 
 @Component({
   selector: 'app-boat-delete-dialog',

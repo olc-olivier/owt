@@ -7,9 +7,45 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Boat, CreateBoatRequest } from '../../models/boat.model';
 
+/**
+ * Input data injected into {@link BoatFormDialogComponent} via `MAT_DIALOG_DATA`.
+ *
+ * Pass a `boat` to pre-populate the form for editing; omit it for a blank
+ * create form.
+ *
+ * @category Components
+ */
 export interface FormDialogData {
+  /** Existing boat to edit. When `undefined` the form is in create mode. */
   boat?: Boat;
 }
+
+/**
+ * Modal form dialog for creating or editing a boat.
+ *
+ * Selector: `app-boat-form-dialog`
+ *
+ * The dialog title and submit button label adapt automatically based on whether
+ * `data.boat` is provided (edit mode) or not (create mode).
+ *
+ * The dialog closes with a {@link CreateBoatRequest} payload when the user
+ * submits a valid form, or `undefined` when the user cancels.
+ *
+ * @example
+ * ```typescript
+ * // Create mode
+ * const ref = this.dialog.open(BoatFormDialogComponent, { data: {} });
+ *
+ * // Edit mode
+ * const ref = this.dialog.open(BoatFormDialogComponent, { data: { boat } });
+ *
+ * ref.afterClosed().subscribe((result: CreateBoatRequest | undefined) => {
+ *   if (result) this.boatService.create(result).subscribe(...);
+ * });
+ * ```
+ *
+ * @category Components
+ */
 
 @Component({
   selector: 'app-boat-form-dialog',

@@ -8,6 +8,26 @@ import { MatMenuModule } from '@angular/material/menu';
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../theme.service';
 
+/**
+ * Authenticated application shell with a collapsible sidebar.
+ *
+ * Selector: `app-layout`
+ *
+ * This component wraps all protected routes.  It renders:
+ * - A **sidebar** with navigation links, a branding header, and a user menu.
+ * - A **main content area** driven by `<router-outlet>`.
+ *
+ * **Sidebar states** (Sneat-style three-state rail):
+ * | CSS class      | Description                                     |
+ * |----------------|-------------------------------------------------|
+ * | `pinned-open`  | Full sidebar (260 px), chevron points left.     |
+ * | `pinned-closed`| Narrow icon rail (68 px), labels hidden.        |
+ * | `peeking`      | Hover overlay expands rail to 260 px temporarily.|
+ *
+ * State is driven by two signals: {@link collapsed} and {@link hovering}.
+ *
+ * @category Components
+ */
 @Component({
   selector: 'app-layout',
   standalone: true,
