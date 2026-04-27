@@ -95,7 +95,7 @@ AI_USAGE.md — What to document
 14. GlobalExceptionHandler :white_check_mark:
 
 Bonus
-- Enable Audittrail on the entity
+- Enable Audittrail on the entity :white_check_mark:
 - OpenAPI is free -> (use the config from an old spring project) :white_check_mark:
 - Dark Mode -> discovery could be free with Google Material, require a slide button to enable in the header or footer :white_check_mark:
 - CI/CD Github -> discovery (lot of time, keep for the end) :boom: :white_check_mark:
@@ -137,7 +137,7 @@ Generate OpenAPI specification for the Spring Boot REST API:
 ./mvnw springdoc-openapi:generate
 ```
 
-Output: `docs/openapi.json` - accessible via Swagger UI at `http://localhost:8080/swagger-ui.html`
+Output: `docs/openapi.json` - accessible via Swagger UI at http://localhost:8080/swagger-ui/index.html
 
 **Configuration:** `springdoc-openapi-maven-plugin` in `pom.xml`
 
