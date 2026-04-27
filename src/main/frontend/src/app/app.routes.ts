@@ -9,6 +9,7 @@ import { authGuard } from './guards/auth.guard';
  * | `/`        | —                   | —           | Redirects to `/boats`        |
  * | `/login`   | `LoginComponent`    | —           | Public                       |
  * | `/boats`   | `BoatListComponent` | `authGuard` | Requires active session      |
+ * | `/help/**` | `HelpComponent`     | `authGuard` | In-app user manual           |
  * | `**`       | —                   | —           | Redirects to `/boats`        |
  *
  * All feature components are **lazy-loaded** via `loadComponent` to keep the
@@ -34,6 +35,13 @@ export const routes: Routes = [
         path: 'boats',
         loadComponent: () =>
           import('./features/boats/boat-list.component').then(m => m.BoatListComponent),
+      },
+      {
+        path: 'help',
+        loadComponent: () =>
+          import('./features/help/help.component').then(m => m.HelpComponent),
+        loadChildren: () =>
+          import('./features/help/help.routes').then(m => m.HELP_ROUTES),
       },
     ],
   },

@@ -19,7 +19,9 @@ public class MainController {
     @RequestMapping(value = {
             "/login",
             "/boats",
-            "/boats/**"
+            "/boats/**",
+            "/help",
+            "/help/**"
     })
     public String spa() {
         return "forward:/index.html";

@@ -80,6 +80,14 @@ import { ThemeService } from '../../theme.service';
             <mat-icon class="nav-icon">directions_boat</mat-icon>
             <span class="nav-label">Fleet Management</span>
           </a>
+          <a
+            class="nav-item"
+            routerLink="/help"
+            routerLinkActive="active"
+          >
+            <mat-icon class="nav-icon">help_outline</mat-icon>
+            <span class="nav-label">Help</span>
+          </a>
         </nav>
 
         <!-- Footer -->
