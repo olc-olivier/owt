@@ -28,6 +28,10 @@ public class BoatMapper {
                 .capacity(boat.getCapacity())
                 .yearBuilt(boat.getYearBuilt())
                 .ownerName(boat.getOwnerName())
+                .createdBy(boat.getCreatedBy())
+                .createdDate(boat.getCreatedDate())
+                .lastModifiedBy(boat.getLastModifiedBy())
+                .lastModifiedDate(boat.getLastModifiedDate())
                 .build();
     }
 

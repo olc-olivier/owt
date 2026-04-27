@@ -16,7 +16,36 @@ CREATE TABLE boats (
     length DOUBLE NOT NULL,
     capacity INT NOT NULL,
     year_built INT NOT NULL,
-    owner_name VARCHAR(100) NOT NULL
+    owner_name VARCHAR(100) NOT NULL,
+    created_by VARCHAR(255),
+    created_date TIMESTAMP,
+    last_modified_by VARCHAR(255),
+    last_modified_date TIMESTAMP
+);
+
+-- Envers revision info table
+CREATE TABLE revinfo (
+    rev INT PRIMARY KEY AUTO_INCREMENT,
+    revtstmp BIGINT
+);
+
+-- Envers audit table for boats
+CREATE TABLE boats_aud (
+    id BIGINT NOT NULL,
+    rev INT NOT NULL,
+    revtype TINYINT,
+    name VARCHAR(100),
+    description VARCHAR(50),
+    length DOUBLE,
+    capacity INT,
+    year_built INT,
+    owner_name VARCHAR(100),
+    created_by VARCHAR(255),
+    created_date TIMESTAMP,
+    last_modified_by VARCHAR(255),
+    last_modified_date TIMESTAMP,
+    PRIMARY KEY (id, rev),
+    FOREIGN KEY (rev) REFERENCES revinfo(rev)
 );
 
 -- Create indexes for better query performance

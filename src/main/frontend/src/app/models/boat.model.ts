@@ -24,6 +24,14 @@ export interface Boat {
   yearBuilt: number;
   /** Full name of the registered owner. */
   ownerName: string;
+  /** Username that created this record (populated by Spring Data auditing). */
+  createdBy?: string;
+  /** ISO-8601 timestamp when this record was first created. */
+  createdDate?: string;
+  /** Username that last modified this record. */
+  lastModifiedBy?: string;
+  /** ISO-8601 timestamp of the most recent modification. */
+  lastModifiedDate?: string;
 }
 
 /**

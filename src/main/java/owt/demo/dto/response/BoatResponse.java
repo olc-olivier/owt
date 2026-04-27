@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,4 +19,8 @@ public class BoatResponse {
     private Integer capacity;
     private Integer yearBuilt;
     private String ownerName;
+    private String createdBy;
+    private Instant createdDate;
+    private String lastModifiedBy;
+    private Instant lastModifiedDate;
 }

@@ -23,8 +23,10 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 
+import { DatePipe } from '@angular/common';
 import { Boat, CreateBoatRequest } from '../../models/boat.model';
 import { BoatService } from '../../services/boat.service';
+import { BoatAuditComponent } from './boat-audit.component';
 import { BoatDeleteDialogComponent } from './boat-delete-dialog.component';
 import {
   BoatDetailDialogComponent,
@@ -40,6 +42,8 @@ import {
   imports: [
     FormsModule,
     DecimalPipe,
+    DatePipe,
+    BoatAuditComponent,
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
@@ -222,10 +226,54 @@ import {
                 </td>
               </ng-container>
 
+              <!-- Created By -->
+              <ng-container matColumnDef="createdBy">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Created By</th>
+                <td mat-cell *matCellDef="let row">
+                  <span class="audit-user">{{ row.createdBy ?? '—' }}</span>
+                </td>
+              </ng-container>
+
+              <!-- Created Date -->
+              <ng-container matColumnDef="createdDate">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
+                <td mat-cell *matCellDef="let row">
+                  <span class="audit-date" [matTooltip]="(row.createdDate | date:'medium') ?? ''">
+                    {{ row.createdDate ? (row.createdDate | date:'dd MMM y') : '—' }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <!-- Last Modified By -->
+              <ng-container matColumnDef="lastModifiedBy">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Modified By</th>
+                <td mat-cell *matCellDef="let row">
+                  <span class="audit-user">{{ row.lastModifiedBy ?? '—' }}</span>
+                </td>
+              </ng-container>
+
+              <!-- Last Modified Date -->
+              <ng-container matColumnDef="lastModifiedDate">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Modified</th>
+                <td mat-cell *matCellDef="let row">
+                  <span class="audit-date" [matTooltip]="(row.lastModifiedDate | date:'medium') ?? ''">
+                    {{ row.lastModifiedDate ? (row.lastModifiedDate | date:'dd MMM y') : '—' }}
+                  </span>
+                </td>
+              </ng-container>
+
               <!-- Actions -->
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
                 <td mat-cell *matCellDef="let row" class="actions-cell">
+                  <button
+                    mat-icon-button
+                    class="action-btn history-btn"
+                    matTooltip="View history"
+                    (click)="openHistory(row, $event)"
+                  >
+                    <mat-icon>history</mat-icon>
+                  </button>
                   <button
                     mat-icon-button
                     class="action-btn edit-btn"
@@ -560,8 +608,21 @@ import {
       mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
     }
 
-    .edit-btn   { color: #696cff; }
-    .delete-btn { color: #d32f2f; }
+    .history-btn { color: #00897b; }
+    .edit-btn    { color: #696cff; }
+    .delete-btn  { color: #d32f2f; }
+
+    .audit-user {
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    .audit-date {
+      font-size: 0.83rem;
+      color: #555;
+      white-space: nowrap;
+    }
+
 
     .no-data {
       text-align: center;
@@ -621,7 +682,7 @@ export class BoatListComponent implements OnInit, AfterViewInit {
   /** `MatTableDataSource` driving the Material table — supports sort, paginator, and filter. */
   dataSource = new MatTableDataSource<Boat>([]);
   /** Ordered list of column keys rendered by the table. */
-  readonly columns = ['name', 'description', 'length', 'capacity', 'yearBuilt', 'ownerName', 'actions'];
+  readonly columns = ['name', 'description', 'length', 'capacity', 'yearBuilt', 'ownerName', 'createdBy', 'createdDate', 'lastModifiedBy', 'lastModifiedDate', 'actions'];
 
   /** Sum of all boat capacities. Recomputed reactively when {@link boats} changes. */
   totalCapacity = computed(() => this.boats().reduce((s, b) => s + b.capacity, 0));
@@ -683,6 +744,22 @@ export class BoatListComponent implements OnInit, AfterViewInit {
   clearFilter(): void {
     this.filterValue = '';
     this.applyFilter('');
+  }
+
+  /**
+   * Opens the {@link BoatAuditComponent} dialog showing the revision history
+   * for the given boat.
+   *
+   * @param boat - The boat whose history to display.
+   * @param event - Stops row click propagation.
+   */
+  openHistory(boat: Boat, event: Event): void {
+    event.stopPropagation();
+    this.dialog.open(BoatAuditComponent, {
+      data: { boatId: boat.id },
+      width: '760px',
+      maxWidth: '95vw',
+    });
   }
 
   /** Opens the {@link BoatFormDialogComponent} in create mode. */

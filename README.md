@@ -76,13 +76,14 @@ AI_USAGE.md — What to document
 3. Use Spring Initializr :white_check_mark:
 4. Use NG client :white_check_mark:
 5. Generate Automatic tests from Use cases :white_check_mark:
-6. OAuth (use the config from an old spring project with my Google auth. coming from a Devoxx Conf.)
+6. OAuth (use the config from an old spring project with my Google auth. coming from a Devoxx Conf.) :white_check_mark:
 7. Errors/Logs centric manangement (???) -> OpenTelemetry
 8. Responsive UI (mobile-friendly) -> Google Material :white_check_mark:
 9. Application as a Docker Container :white_check_mark:
 10. Generate the Documentation :white_check_mark:
 11. Integrated testing (Maven + npm) :white_check_mark:
 12. Expanded test data (30 boats) :white_check_mark:
+13. Audit Log :white_check_mark:
 
 Bonus
 - Enable Audittrail on the entity
@@ -626,3 +627,52 @@ Ensure the test code is clean, maintainable, and production-ready
 ```
 Authorize form login and oauth2, prior access to login page classic login by api and add button to redirect to oauth login page if signed with success with dex redirectTo: 'boats' no need to go on the angular form login page
 ```
+
+<details>
+  <summary>
+    13. Auditing
+  </summary>
+Act as a senior full-stack architect specialized in Spring Boot and Angular.
+
+I want to design and implement a complete auditing system for a Spring Boot application (using Spring Data JPA) with an Angular frontend.
+
+Requirements:
+
+Backend: Spring Boot + Spring Data JPA 4.x
+Frontend: Angular version 21
+Authentication: Spring Security
+Database: (specify: PostgreSQL / MySQL / etc.)
+
+Goals:
+
+Track:
+createdBy, createdDate
+lastModifiedBy, lastModifiedDate
+optionally: full change history (before/after values)
+Automatically populate audit fields using Spring Data JPA auditing
+Retrieve the current authenticated user (AuditorAware implementation)
+Expose audit data via REST APIs
+Display audit history in Angular (timeline or table UI)
+
+What I need from you:
+
+Step-by-step backend implementation:
+Enable auditing configuration
+BaseEntity class with annotations
+AuditorAware implementation using Spring Security
+Example entity using auditing
+Advanced auditing:
+Optionally integrate Hibernate Envers or custom audit tables
+Design for storing historical changes
+Angular frontend:
+Service to fetch audit data
+UI component (table or timeline) to display history
+Architecture best practices:
+Separation of concerns
+Performance considerations
+Security considerations (who can see audit logs)
+Example API endpoints and JSON responses
+Common pitfalls and how to avoid them
+
+Use clean code, production-ready patterns, and explain key decisions.
+</details>
