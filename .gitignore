@@ -32,4 +32,5 @@ target/
 src/main/frontend/node*
 src/main/frontend/dist
 src/main/frontend/.angular/cache
+src/main/frontend/documentation
 

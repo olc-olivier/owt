@@ -1,0 +1,20 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "out": "docs/typedoc",
+  "entryPoints": ["src/app"],
+  "tsconfig": "tsconfig.doc.json",
+  "displayOrder": "alphabetical",
+  "searchInComments": true,
+  "includeVersion": true,
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeExternals": true,
+  "excludeInternal": false,
+  "sort": ["source-order"],
+  "plugin": ["typedoc-plugin-mdn-links"],
+  "readme": "README.md",
+  "navigationLinks": {
+    "GitHub": "https://github.com/olivier74/owt",
+    "API Docs": "/api"
+  }
+}
