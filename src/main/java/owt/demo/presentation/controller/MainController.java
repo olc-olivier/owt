@@ -1,16 +1,6 @@
 package owt.demo.presentation.controller;
 
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.stereotype.Controller;
-/*
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.oidc.StandardClaimAccessor;
-import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-*/
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -19,7 +9,20 @@ public class MainController {
 
     @RequestMapping("/")
     public String index() {
-        return "index.html";
+        return "forward:/index.html";
+    }
+
+    /**
+     * Forward all non-API, non-asset routes to index.html so Angular's
+     * client-side router handles deep links and page refreshes correctly.
+     */
+    @RequestMapping(value = {
+            "/login",
+            "/boats",
+            "/boats/**"
+    })
+    public String spa() {
+        return "forward:/index.html";
     }
 
 /*    

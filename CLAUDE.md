@@ -56,6 +56,21 @@ mvn package -DskipTests
 mvn install -DskipTests
 ```
 
+**Run all tests (Java + npm combined):**
+```bash
+mvn test
+```
+
+**Run only Java tests:**
+```bash
+mvn test -DskipTests=false -Dskip.npm.tests=true
+```
+
+**Build and run both test suites:**
+```bash
+mvn clean verify
+```
+
 
 ## Architecture
 

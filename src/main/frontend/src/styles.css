@@ -6,3 +6,29 @@
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* ── Global layout reset ── */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* ── Snackbar ── */
+.snack-success .mdc-snackbar__surface {
+  background: #43a047 !important;
+}
+.snack-error .mdc-snackbar__surface {
+  background: #d32f2f !important;
+}
+
+/* ── Detail dialog panel ── */
+.detail-dialog .mat-mdc-dialog-container {
+  border-radius: 16px;
+}
+
+/* ── Table row hover in dark mode ── */
+.dark .mat-mdc-row:hover {
+  background: rgba(105, 108, 255, 0.08) !important;
+}

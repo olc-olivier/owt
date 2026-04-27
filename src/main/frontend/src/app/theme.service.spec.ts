@@ -17,7 +17,7 @@ describe('ThemeService', () => {
   });
 
   it('should start with dark mode off', () => {
-    expect(service.isDarkMode()).toBeFalse();
+    expect(service.isDarkMode()).toBe(false);
   });
 
   describe('toggleTheme()', () => {
@@ -44,7 +44,7 @@ describe('ThemeService', () => {
 
     it('updates isDarkMode signal', () => {
       service.toggleTheme();
-      expect(service.isDarkMode()).toBeTrue();
+      expect(service.isDarkMode()).toBe(true);
     });
   });
 
@@ -52,24 +52,25 @@ describe('ThemeService', () => {
     it('restores dark mode from localStorage', () => {
       localStorage.setItem('theme', 'dark');
       service.initTheme();
-      expect(service.isDarkMode()).toBeTrue();
+      expect(service.isDarkMode()).toBe(true);
       expect(document.documentElement.classList).toContain('dark');
     });
 
     it('restores light mode from localStorage', () => {
       localStorage.setItem('theme', 'light');
       service.initTheme();
-      expect(service.isDarkMode()).toBeFalse();
+      expect(service.isDarkMode()).toBe(false);
     });
 
     it('falls back to matchMedia when no localStorage entry', () => {
-      const original = window.matchMedia;
-      spyOn(window, 'matchMedia').and.returnValue({ matches: true } as MediaQueryList);
+      const matchMediaSpy = jest.spyOn(window, 'matchMedia').mockReturnValue({
+        matches: true,
+      } as MediaQueryList);
 
       service.initTheme();
-      expect(service.isDarkMode()).toBeTrue();
+      expect(service.isDarkMode()).toBe(true);
 
-      window.matchMedia = original;
+      matchMediaSpy.mockRestore();
     });
   });
 });

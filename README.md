@@ -473,3 +473,104 @@ For each file, add a one-line comment explaining the key design decision.
 
 9. Dark Mode Fix with Angular Skill IA
 /angular fix test on Dark Mode not working   
+
+10. Add full-stack Angular UI with login, boat management CRUD, and expanded test data
+```
+As a Angular developer with UI/UX advanced skills.
+Create a component for the boats management.
+
+Use Cases:
+- UC1 The user opens the app and is redirected to a login page. After authentication, they reach the boat
+overview (UC2).
+- UC2 The authenticated user sees a paginated list of all boats.
+- UC3 The user can create, update, and delete a boat.
+- UC4 The user can click on a boat to access its detail view.
+- UC5 The user can search or filter the boat list by name or description.
+- UC6 The user sees a confirmation dialog before deleting a boat.
+
+Extra:
+Columns Sorteable: name, description, length, capacity, year_built, owner_name
+Columns Filterable: name or description
+A dialog box to confirm the delete and another dialog box for detail view with action (button to enable the update form)
+
+Some tips -> https://www.mockplus.com/blog/post/list-ui-design
+
+UI:
+Get some UI design from this url -> https://demos.themeselection.com/sneat-bootstrap-html-admin-template/html/vertical-menu-template/app-ecommerce-product-list.html
+Don'tcopy the code, keep Angular/Material and try to reproduce the list and the behaviors
+
+https://medium.com/@CarlosSmith24/admin-dashboard-ui-ux-best-practices-for-2025-8bdc6090c57d
+https://www.justinmind.com/ui-design/list
+```
+
+11. Add Front Tests
+```
+You are a Senior UI QA Engineer specializing in modern Angular (v17+) applications.
+
+Your task is to generate high-quality unit tests for a provided Angular standalone component using Jest and jest-preset-angular.
+
+Context:
+
+Angular version: v17+ (standalone components, signals, new control flow such as @if and @for)
+Testing framework: Jest (do not use Karma or Jasmine)
+Environment: jsdom
+Focus: user behavior, DOM rendering, accessibility, and robustness
+
+Requirements:
+
+Setup:
+Use TestBed.configureTestingModule
+Import the standalone component using imports: [Component]
+Use modern providers such as provideHttpClientTesting() and provideRouter([]) when needed
+Avoid NgModules unless strictly necessary
+Test Structure:
+Use Jest syntax: describe, it, expect
+Follow the Arrange / Act / Assert pattern
+Write clear, behavior-driven test names (e.g., "should display error message when API call fails")
+Rendering and DOM Testing:
+Query the DOM using user-centric selectors such as getByRole, getByText, getByLabelText
+Avoid querySelector and CSS-based selectors unless absolutely necessary
+Use data-testid only as a last resort
+Component Behavior:
+Test component creation
+Test initial rendering
+Test @Input and @Output interactions
+Test signal-based state updates (signal, computed, effect)
+Test conditional rendering using @if and @for
+Test event handling (click, input, keyboard)
+User Interactions:
+Simulate real user behavior (clicks, typing, form submission)
+Assert that the DOM updates correctly
+Assert that events are emitted correctly
+Ensure UI reflects state changes
+Mocking:
+Mock dependencies using jest.fn()
+Inject mocks via providers array
+Mock Observables using of() and throwError()
+Do not perform real HTTP calls
+Async and Reactivity:
+Use async/await
+Use findBy* queries for async DOM updates
+Properly handle Observables and signals
+Avoid unnecessary use of fakeAsync
+Accessibility:
+Verify roles, labels, and ARIA attributes
+Ensure elements are accessible via keyboard
+Edge Cases:
+Include tests for empty state
+Include tests for loading state
+Include tests for error state
+Include tests for unexpected or large inputs
+Anti-patterns to avoid:
+Do not test private methods
+Do not test internal implementation details
+Do not access internal variables or signals directly
+Do not use Karma or Jasmine APIs
+Do not overuse fixture.detectChanges()
+
+Output:
+
+Generate a complete and working .spec.ts file
+Include all necessary setup and mocks
+Ensure the test code is clean, maintainable, and production-ready
+```

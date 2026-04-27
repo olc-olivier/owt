@@ -15,6 +15,7 @@
   <description></description>
   <properties>
     <java.version>25</java.version>
+    <skipNpmTests>false</skipNpmTests>
     <springdoc-openapi-starter-webmvc-ui.version>3.0.1</springdoc-openapi-starter-webmvc-ui.version>
   </properties>
   <dependencies>
@@ -27,7 +28,7 @@
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
       <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-h2console</artifactId>
@@ -136,6 +137,17 @@
             </goals>
             <configuration>
               <arguments>run-script build</arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>npm-test</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>test</phase>
+            <configuration>
+              <skip>${skipNpmTests}</skip>
+              <arguments>run test:ci</arguments>
             </configuration>
           </execution>
 
