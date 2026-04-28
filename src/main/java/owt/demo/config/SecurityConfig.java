@@ -35,6 +35,8 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(authz -> authz
+                        // Actuator endpoints (health checks for Docker / infra)
+                        .requestMatchers("/actuator/**").permitAll()
                         // H2 console and API docs
                         .requestMatchers(
                                 "/h2-console/**",

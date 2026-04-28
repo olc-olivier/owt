@@ -52,6 +52,25 @@ createdAt
 |||Dark mode / WCAG AA accessibility |
 |||Audit log (who created / updated / deleted and when) |
 
+
+### OAuth2 Credential 
+- User: admin@example.com
+- Password: password
+
+### OAuth2 Docker Compose Deployments.
+ <br/>![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white) 
+ 
+ Development Env.
+ ```
+  ~/Docker/dex-full> ./runme.sh 
+  ```
+ <br/>![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white) 
+ 
+ Production Env. (dex-full folder)
+  ```
+  ~/Docker/dex-full>  sudo ./runme.sh 
+  ```
+
 ## AI-Assisted Development
 
 AI_USAGE.md — What to document
@@ -93,6 +112,7 @@ AI_USAGE.md — What to document
 12. Expanded test data (30 boats) :white_check_mark:
 13. Audit Log :white_check_mark:
 14. GlobalExceptionHandler :white_check_mark:
+15. Docker Compose Full (OAuth2+App) :white_check_mark:
 
 Bonus
 - Enable Audittrail on the entity :white_check_mark:

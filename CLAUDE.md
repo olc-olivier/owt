@@ -146,6 +146,9 @@ docker compose up
 ````
 Dockerfile                                     # File used to create a container image with the application
 pom.xml                                        # Maven Project File
+Docker/
+├── dex-dev/                                   # Docker Compose for OAuth Server
+├── dex-full/                                  # Docker Compose for OAuth Server + Spring Boot Application
 src/
 ├── main/
 │   ├── frontend/                              # Angular Project
