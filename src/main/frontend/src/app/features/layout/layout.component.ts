@@ -1,12 +1,14 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, effect, OnDestroy } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { Router } from '@angular/router';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../theme.service';
+import { Subscription } from 'rxjs';
 
 /**
  * Authenticated application shell with a collapsible sidebar.
@@ -43,10 +45,17 @@ import { ThemeService } from '../../theme.service';
   template: `
     <div
       class="shell"
-      [class.pinned-open]="!collapsed()"
-      [class.pinned-closed]="collapsed() && !hovering()"
-      [class.peeking]="collapsed() && hovering()"
+      [class.pinned-open]="!collapsed() && !isMobile()"
+      [class.pinned-closed]="collapsed() && !hovering() && !isMobile()"
+      [class.peeking]="collapsed() && hovering() && !isMobile()"
+      [class.mobile]="isMobile()"
+      [class.mobile-open]="isMobile() && mobileOpen()"
     >
+      <!-- ── Mobile backdrop ── -->
+      @if (isMobile() && mobileOpen()) {
+        <div class="backdrop" (click)="closeMobile()"></div>
+      }
+
       <!-- ── Sidebar ── -->
       <aside
         class="sidebar"
@@ -58,16 +67,22 @@ import { ThemeService } from '../../theme.service';
           <mat-icon class="brand-icon">sailing</mat-icon>
           <span class="brand-name">BoatFleet</span>
 
-          <!-- Chevron toggle — always rendered, CSS hides/shows it -->
-          <button
-            class="chevron-btn"
-            (click)="togglePinned()"
-            [title]="collapsed() ? 'Pin sidebar open' : 'Collapse sidebar'"
-          >
-            <mat-icon class="chevron-icon">
-              {{ collapsed() ? 'chevron_right' : 'chevron_left' }}
-            </mat-icon>
-          </button>
+          <!-- Chevron toggle — hidden on mobile (close via backdrop) -->
+          @if (!isMobile()) {
+            <button
+              class="chevron-btn"
+              (click)="togglePinned()"
+              [title]="collapsed() ? 'Pin sidebar open' : 'Collapse sidebar'"
+            >
+              <mat-icon class="chevron-icon">
+                {{ collapsed() ? 'chevron_right' : 'chevron_left' }}
+              </mat-icon>
+            </button>
+          } @else {
+            <button class="chevron-btn" (click)="closeMobile()" title="Close menu">
+              <mat-icon class="chevron-icon">close</mat-icon>
+            </button>
+          }
         </div>
 
         <!-- Nav links -->
@@ -76,6 +91,7 @@ import { ThemeService } from '../../theme.service';
             class="nav-item"
             routerLink="/boats"
             routerLinkActive="active"
+            (click)="onNavClick()"
           >
             <mat-icon class="nav-icon">directions_boat</mat-icon>
             <span class="nav-label">Fleet Management</span>
@@ -84,6 +100,7 @@ import { ThemeService } from '../../theme.service';
             class="nav-item"
             routerLink="/help"
             routerLinkActive="active"
+            (click)="onNavClick()"
           >
             <mat-icon class="nav-icon">help_outline</mat-icon>
             <span class="nav-label">Help</span>
@@ -111,6 +128,12 @@ import { ThemeService } from '../../theme.service';
       <div class="main-area">
         <header class="topbar">
           <div class="topbar-left">
+            <!-- Hamburger — mobile only -->
+            @if (isMobile()) {
+              <button class="hamburger-btn" (click)="openMobile()" title="Open menu">
+                <mat-icon>menu</mat-icon>
+              </button>
+            }
             <h2 class="page-title">Fleet Management</h2>
           </div>
           <div class="topbar-right">
@@ -488,12 +511,108 @@ import { ThemeService } from '../../theme.service';
       overflow-y: auto;
       padding: 1.5rem;
     }
+
+    @media (max-width: 768px) {
+      .content {
+        padding: 1rem;
+      }
+    }
+
+    /* ─────────────────────────────────────────
+       Mobile: sidebar as overlay drawer
+    ───────────────────────────────────────── */
+    .mobile .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100dvh;
+      width: 260px;
+      z-index: 300;
+      transform: translateX(-100%);
+      transition: transform 0.25s cubic-bezier(.4,0,.2,1),
+                  box-shadow 0.25s ease;
+      box-shadow: none;
+    }
+
+    .mobile-open .sidebar {
+      transform: translateX(0);
+      box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+    }
+
+    /* Restore labels in mobile drawer (always full-width) */
+    .mobile .nav-label,
+    .mobile .footer-btn .nav-label {
+      opacity: 1;
+      width: auto;
+    }
+
+    .mobile .nav-item {
+      justify-content: flex-start;
+      padding: 0.65rem 0.75rem;
+    }
+
+    .mobile .footer-btn {
+      justify-content: flex-start;
+      padding: 0.6rem 0.75rem;
+    }
+
+    /* Main area takes full width on mobile */
+    .mobile .main-area {
+      margin-left: 0;
+      width: 100%;
+    }
+
+    /* Backdrop */
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 299;
+      animation: fade-in 0.2s ease;
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* Hamburger button */
+    .hamburger-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-right: 0.5rem;
+
+      &:hover {
+        background: rgba(0,0,0,0.06);
+      }
+
+      mat-icon {
+        font-size: 1.4rem;
+        width: 1.4rem;
+        height: 1.4rem;
+      }
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+    }
   `],
 })
-export class LayoutComponent {
+export class LayoutComponent implements OnDestroy {
   auth = inject(AuthService);
   themeService = inject(ThemeService);
   private router = inject(Router);
+  private breakpoints = inject(BreakpointObserver);
 
   /** true = rail (pinned closed), false = pinned open */
   collapsed = signal(false);
@@ -501,20 +620,59 @@ export class LayoutComponent {
   /** true while the mouse is inside the sidebar rail */
   hovering = signal(false);
 
+  /** true when viewport is ≤ 768 px (mobile) */
+  isMobile = signal(false);
+
+  /** true when the mobile drawer is open */
+  mobileOpen = signal(false);
+
+  private bpSub: Subscription;
+
+  constructor() {
+    this.bpSub = this.breakpoints
+      .observe('(max-width: 768px)')
+      .subscribe(state => {
+        this.isMobile.set(state.matches);
+        if (state.matches) {
+          // auto-close drawer when entering mobile
+          this.mobileOpen.set(false);
+          this.hovering.set(false);
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.bpSub.unsubscribe();
+  }
+
   userInitial() {
     return this.auth.user()?.username?.[0] ?? 'U';
   }
 
   togglePinned(): void {
     this.collapsed.update(v => !v);
-    // when we pin open, clear any hover state
     if (!this.collapsed()) {
       this.hovering.set(false);
     }
   }
 
+  openMobile(): void {
+    this.mobileOpen.set(true);
+  }
+
+  closeMobile(): void {
+    this.mobileOpen.set(false);
+  }
+
+  /** Close mobile drawer when a nav link is tapped */
+  onNavClick(): void {
+    if (this.isMobile()) {
+      this.mobileOpen.set(false);
+    }
+  }
+
   onSidebarEnter(): void {
-    if (this.collapsed()) {
+    if (this.collapsed() && !this.isMobile()) {
       this.hovering.set(true);
     }
   }

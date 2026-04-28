@@ -99,12 +99,12 @@ AI_USAGE.md — What to document
 ## Steps
 
 1. Setup AI (find best template for claude) :white_check_mark:
-2. What are the dependencies require? -> SPRING:security:web:rest:db (in memory more simple, with preload, H2) :white_check_mark:
+2. What are the dependencies require? security, web, rest, db :white_check_mark:
 3. Use Spring Initializr :white_check_mark:
 4. Use NG client :white_check_mark:
 5. Generate Automatic tests from Use cases :white_check_mark:
 6. OAuth (use the config from an old spring project with my Google auth. coming from a Devoxx Conf.) :white_check_mark:
-7. Errors/Logs centric manangement (???) -> OpenTelemetry
+7. Errors/Logs centric manangement (???) -> OpenTelemetry Not require :large_blue_circle:
 8. Responsive UI (mobile-friendly) -> Google Material :white_check_mark:
 9. Application as a Docker Container :white_check_mark:
 10. Generate the Documentation :white_check_mark:
@@ -703,4 +703,9 @@ Example API endpoints and JSON responses
 Common pitfalls and how to avoid them
 
 Use clean code, production-ready patterns, and explain key decisions.
+```
+
+13. Auditing
+```
+/angular fix ui design, to be Responsive UI (mobile-friendly), automaticly close side navigation when the resolution less equal to standard mobile resolution or mobile is detected
 ```
