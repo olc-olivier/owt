@@ -1,12 +1,15 @@
 import {
   Component,
   OnInit,
+  OnDestroy,
   inject,
   signal,
   computed,
   ViewChild,
   AfterViewInit,
 } from '@angular/core';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { Subscription } from 'rxjs';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
@@ -20,6 +23,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 
@@ -57,48 +61,69 @@ import {
     MatDialogModule,
     MatChipsModule,
     MatBadgeModule,
+    MatExpansionModule,
   ],
   template: `
     <div class="page">
-      <!-- Stats row -->
-      <div class="stats-row">
-        <div class="stat-card">
-          <div class="stat-icon blue">
-            <mat-icon>directions_boat</mat-icon>
+      <!-- Stats disclosure panel -->
+      <mat-expansion-panel
+        class="stats-panel"
+        [expanded]="statsOpen()"
+        (opened)="statsOpen.set(true)"
+        (closed)="statsOpen.set(false)"
+        hideToggle
+      >
+        <mat-expansion-panel-header class="stats-panel-header">
+          <mat-panel-title>
+            <mat-icon>bar_chart</mat-icon>
+            Fleet Statistics
+          </mat-panel-title>
+          <mat-panel-description>
+            <mat-icon class="stats-toggle-icon">
+              {{ statsOpen() ? 'expand_less' : 'expand_more' }}
+            </mat-icon>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon blue">
+              <mat-icon>directions_boat</mat-icon>
+            </div>
+            <div>
+              <div class="stat-value">{{ fleetStats()?.totalBoats ?? totalElements() }}</div>
+              <div class="stat-label">Total Boats</div>
+            </div>
           </div>
-          <div>
-            <div class="stat-value">{{ fleetStats()?.totalBoats ?? totalElements() }}</div>
-            <div class="stat-label">Total Boats</div>
+          <div class="stat-card">
+            <div class="stat-icon purple">
+              <mat-icon>group</mat-icon>
+            </div>
+            <div>
+              <div class="stat-value">{{ totalCapacity() }}</div>
+              <div class="stat-label">Total Capacity</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon teal">
+              <mat-icon>straighten</mat-icon>
+            </div>
+            <div>
+              <div class="stat-value">{{ avgLength() | number:'1.1-1' }} m</div>
+              <div class="stat-label">Avg. Length</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">
+              <mat-icon>person</mat-icon>
+            </div>
+            <div>
+              <div class="stat-value">{{ uniqueOwners() }}</div>
+              <div class="stat-label">Unique Owners</div>
+            </div>
           </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon purple">
-            <mat-icon>group</mat-icon>
-          </div>
-          <div>
-            <div class="stat-value">{{ totalCapacity() }}</div>
-            <div class="stat-label">Total Capacity</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon teal">
-            <mat-icon>straighten</mat-icon>
-          </div>
-          <div>
-            <div class="stat-value">{{ avgLength() | number:'1.1-1' }} m</div>
-            <div class="stat-label">Avg. Length</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon orange">
-            <mat-icon>person</mat-icon>
-          </div>
-          <div>
-            <div class="stat-value">{{ uniqueOwners() }}</div>
-            <div class="stat-label">Unique Owners</div>
-          </div>
-        </div>
-      </div>
+      </mat-expansion-panel>
 
       <!-- Table Card -->
       <div class="table-card">
@@ -220,7 +245,7 @@ import {
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Owner</th>
                 <td mat-cell *matCellDef="let row">
                   <div class="owner-cell">
-                    <div class="owner-avatar">{{ row.ownerName[0] }}</div>
+                    <div class="owner-avatar">{{ row.ownerName?.[0]?.toUpperCase() ?? '?' }}</div>
                     <span>{{ row.ownerName }}</span>
                   </div>
                 </td>
@@ -399,7 +424,7 @@ import {
       background: var(--mat-card-background-color, #fff);
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      overflow: hidden;
+      /* overflow must NOT be hidden here — it clips mat-paginator on narrow screens */
     }
 
     .table-toolbar {
@@ -646,6 +671,96 @@ import {
 
     mat-paginator {
       border-top: 1px solid var(--mat-divider-color, rgba(0,0,0,0.08));
+      border-radius: 0 0 12px 12px;
+    }
+
+    /* ── Stats disclosure panel ── */
+    .stats-panel {
+      border-radius: 12px !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+
+      /* Remove default expansion panel bottom margin */
+      &.mat-expanded {
+        margin: 0 !important;
+      }
+    }
+
+    .stats-panel-header {
+      min-height: 48px !important;
+      padding: 0 1.25rem !important;
+
+      mat-panel-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+
+        mat-icon {
+          font-size: 1.1rem;
+          width: 1.1rem;
+          height: 1.1rem;
+          color: #696cff;
+        }
+      }
+
+      mat-panel-description {
+        justify-content: flex-end;
+        margin: 0;
+      }
+
+      .stats-toggle-icon {
+        color: #888;
+        font-size: 1.25rem;
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+    }
+
+    /* Stats grid inside the panel — add top padding */
+    mat-expansion-panel .stats-row {
+      padding-top: 0.25rem;
+      padding-bottom: 0.5rem;
+    }
+
+    @media (max-width: 600px) {
+      mat-paginator {
+        /* Allow the paginator host to wrap its internal flex row */
+        ::ng-deep .mat-mdc-paginator-container {
+          flex-wrap: wrap;
+          justify-content: center;
+          padding: 0.5rem 0.25rem;
+          min-height: unset;
+          gap: 0.25rem;
+        }
+
+        /* Shrink the page-size label so it fits */
+        ::ng-deep .mat-mdc-paginator-page-size {
+          margin-right: 0;
+          align-items: center;
+        }
+
+        ::ng-deep .mat-mdc-paginator-page-size-label {
+          font-size: 0.75rem;
+          margin-right: 4px;
+        }
+
+        /* Range label ("1 – 10 of 30") — smaller but still readable */
+        ::ng-deep .mat-mdc-paginator-range-label {
+          font-size: 0.75rem;
+          margin: 0 4px;
+        }
+
+        /* Navigation icon buttons — tighten padding */
+        ::ng-deep .mat-mdc-icon-button.mat-mdc-paginator-navigation-first,
+        ::ng-deep .mat-mdc-icon-button.mat-mdc-paginator-navigation-previous,
+        ::ng-deep .mat-mdc-icon-button.mat-mdc-paginator-navigation-next,
+        ::ng-deep .mat-mdc-icon-button.mat-mdc-paginator-navigation-last {
+          width: 32px;
+          height: 32px;
+          padding: 4px;
+        }
+      }
     }
   `],
 })
@@ -665,13 +780,17 @@ import {
  *
  * @category Components
  */
-export class BoatListComponent implements OnInit, AfterViewInit {
+export class BoatListComponent implements OnInit, AfterViewInit, OnDestroy {
   private boatService = inject(BoatService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  private breakpointObserver = inject(BreakpointObserver);
 
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  /** True when the stats panel is expanded; auto-closes on mobile. */
+  statsOpen = signal(true);
 
   boats = signal<Boat[]>([]);
   loading = signal(true);
@@ -691,15 +810,24 @@ export class BoatListComponent implements OnInit, AfterViewInit {
   avgLength = computed(() => this.fleetStats()?.avgLength ?? 0);
   uniqueOwners = computed(() => this.fleetStats()?.uniqueOwners ?? 0);
 
+  private bpSub!: Subscription;
+
   ngOnInit(): void {
     this.load(0, this.currentPageSize);
     this.loadStats();
+    this.bpSub = this.breakpointObserver
+      .observe([Breakpoints.XSmall, Breakpoints.Small])
+      .subscribe(state => this.statsOpen.set(!state.matches));
+  }
+
+  ngOnDestroy(): void {
+    this.bpSub?.unsubscribe();
   }
 
   loadStats(): void {
     this.boatService.getStats().subscribe({
       next: stats => this.fleetStats.set(stats),
-      error: () => {},
+      error: (err: Error) => console.warn('Fleet stats unavailable:', err.message),
     });
   }
 

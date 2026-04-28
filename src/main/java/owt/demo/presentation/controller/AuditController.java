@@ -9,14 +9,21 @@ import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.query.AuditEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * REST controller exposing Hibernate Envers audit history for boat entities.
+ *
+ * <p>All endpoints under {@code /api/audit} require the {@code ADMIN} role.
+ */
 @RestController
 @RequestMapping("/api/audit")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class AuditController {
 
     private final EntityManager entityManager;
@@ -27,6 +34,16 @@ public class AuditController {
         this.boatMapper = boatMapper;
     }
 
+    /**
+     * Returns the full revision history of a single boat.
+     *
+     * <p>Each entry in the returned list describes one Hibernate Envers revision:
+     * the revision number, timestamp, type ({@code ADD}, {@code MOD}, or {@code DEL}),
+     * and the boat state at that revision.
+     *
+     * @param id the identifier of the boat whose history is requested
+     * @return HTTP 200 with the ordered list of revision entries
+     */
     @GetMapping("/boats/{id}/history")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<BoatRevisionDTO>> getBoatHistory(@PathVariable Long id) {

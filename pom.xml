@@ -16,6 +16,9 @@
   <properties>
     <java.version>25</java.version>
     <skipNpmTests>false</skipNpmTests>
+    <sonar.organization>olivier74</sonar.organization>
+    <sonar.organization>olivier74</sonar.organization>
+    <sonar.projectKey>olc-olivier_owt</sonar.projectKey>
     <springdoc-openapi-starter-webmvc-ui.version>3.0.1</springdoc-openapi-starter-webmvc-ui.version>
   </properties>
   <dependencies>

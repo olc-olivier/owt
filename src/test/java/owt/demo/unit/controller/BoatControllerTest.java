@@ -5,6 +5,7 @@ import owt.demo.application.service.BoatService;
 import owt.demo.dto.request.CreateBoatRequest;
 import owt.demo.dto.request.UpdateBoatRequest;
 import owt.demo.dto.response.BoatResponse;
+import owt.demo.dto.response.BoatStatsResponse;
 import owt.demo.presentation.controller.BoatController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -262,6 +263,48 @@ class BoatControllerTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Titanic"))
                 .andExpect(jsonPath("$.ownerName").value("White Star"));
+    }
+
+    // ── Stats / search endpoints ──────────────────────────────────────────────
+
+    @Test
+    @DisplayName("GET /api/boats/stats returns 200 with aggregate stats")
+    void getStats_returns200WithStats() throws Exception {
+        BoatStatsResponse stats = new BoatStatsResponse(30L, 5000L, 15.5, 8L);
+        when(boatService.getStats()).thenReturn(stats);
+
+        mockMvc.perform(get("/api/boats/stats").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalBoats").value(30))
+                .andExpect(jsonPath("$.totalCapacity").value(5000))
+                .andExpect(jsonPath("$.avgLength").value(15.5))
+                .andExpect(jsonPath("$.uniqueOwners").value(8));
+    }
+
+    @Test
+    @DisplayName("GET /api/boats/search/description?description=... returns 200 with matching boats")
+    void getBoatsByDescription_returnsMatchingBoats() throws Exception {
+        List<BoatResponse> boats = List.of(buildBoatResponse(1L));
+        when(boatService.getBoatsByDescription("Ocean liner")).thenReturn(boats);
+
+        mockMvc.perform(get("/api/boats/search/description")
+                        .param("description", "Ocean liner")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1));
+    }
+
+    @Test
+    @DisplayName("GET /api/boats/search/owner?ownerName=... returns 200 with matching boats")
+    void getBoatsByOwner_returnsMatchingBoats() throws Exception {
+        List<BoatResponse> boats = List.of(buildBoatResponse(1L));
+        when(boatService.getBoatsByOwner("White Star")).thenReturn(boats);
+
+        mockMvc.perform(get("/api/boats/search/owner")
+                        .param("ownerName", "White Star")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].ownerName").value("White Star"));
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

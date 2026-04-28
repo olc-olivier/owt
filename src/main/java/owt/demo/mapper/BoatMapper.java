@@ -6,8 +6,22 @@ import owt.demo.dto.request.UpdateBoatRequest;
 import owt.demo.dto.response.BoatResponse;
 import org.springframework.stereotype.Component;
 
+/**
+ * Maps between the {@link Boat} JPA entity and its request/response DTOs.
+ *
+ * <p>All conversions are pure functions — no database access is performed here.
+ * Partial updates via {@link #updateEntityFromRequest(UpdateBoatRequest, Boat)}
+ * only modify fields that are non-null in the request.
+ */
 @Component
 public class BoatMapper {
+
+    /**
+     * Converts a {@link CreateBoatRequest} to a new, unsaved {@link Boat} entity.
+     *
+     * @param request the validated creation request
+     * @return a new {@link Boat} instance (not yet persisted)
+     */
     public Boat toEntity(CreateBoatRequest request) {
         return Boat.builder()
                 .name(request.getName())
@@ -19,6 +33,13 @@ public class BoatMapper {
                 .build();
     }
 
+    /**
+     * Converts a persisted {@link Boat} entity to a {@link BoatResponse} DTO,
+     * including auditing fields populated by Spring Data.
+     *
+     * @param boat the persisted entity
+     * @return the response DTO
+     */
     public BoatResponse toResponse(Boat boat) {
         return BoatResponse.builder()
                 .id(boat.getId())
@@ -35,6 +56,13 @@ public class BoatMapper {
                 .build();
     }
 
+    /**
+     * Applies non-null fields from a {@link UpdateBoatRequest} to an existing {@link Boat} entity.
+     * Null fields in the request are ignored, leaving the entity's current value unchanged.
+     *
+     * @param request the partial update request
+     * @param boat    the entity to mutate in place
+     */
     public void updateEntityFromRequest(UpdateBoatRequest request, Boat boat) {
         if (request.getName() != null) {
             boat.setName(request.getName());

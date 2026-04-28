@@ -28,6 +28,7 @@ target/
 .vscode/
 .claude/
 .agents/
+.idea/
 
 src/main/frontend/node*
 src/main/frontend/dist

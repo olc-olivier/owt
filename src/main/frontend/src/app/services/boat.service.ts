@@ -78,15 +78,20 @@ export class BoatService {
   }
 
   /**
-   * Permanently deletes a boat from the server.
+   * Returns aggregate fleet statistics (total boats, capacity, avg length, unique owners).
    *
-   * @param id - ID of the boat to delete.
-   * @returns Observable that completes with no value on success.
+   * @returns Observable that emits the current {@link BoatStats}.
    */
   getStats(): Observable<BoatStats> {
     return this.http.get<BoatStats>(`${this.base}/stats`);
   }
 
+  /**
+   * Permanently deletes a boat from the server.
+   *
+   * @param id - ID of the boat to delete.
+   * @returns Observable that completes with no value on success.
+   */
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
   }

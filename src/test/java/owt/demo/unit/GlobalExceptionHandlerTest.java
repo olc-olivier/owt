@@ -108,7 +108,10 @@ class GlobalExceptionHandlerTest {
     void entityNotFoundException_returns404WithErrorBody() throws Exception {
         mockMvc.perform(get("/stub/entity-not-found").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Boat not found with id: 99"));
+                .andExpect(jsonPath("$.error").value("Boat not found with id: 99"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.path").value("/stub/entity-not-found"));
     }
 
     // ── 2. InvalidOperationException → 400 ───────────────────────────────────
@@ -118,7 +121,10 @@ class GlobalExceptionHandlerTest {
     void invalidOperationException_returns400WithErrorBody() throws Exception {
         mockMvc.perform(get("/stub/invalid-operation").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Cannot delete a boat that is currently at sea"));
+                .andExpect(jsonPath("$.error").value("Cannot delete a boat that is currently at sea"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.path").value("/stub/invalid-operation"));
     }
 
     // ── 3. MethodArgumentNotValidException → 400 with details array ──────────
@@ -134,6 +140,9 @@ class GlobalExceptionHandlerTest {
                         .content(blankNameBody))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Validation failed"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.path").value("/stub/validation"))
                 .andExpect(jsonPath("$.details").isArray())
                 .andExpect(jsonPath("$.details[0]").value("name: name is required"));
     }
@@ -145,6 +154,20 @@ class GlobalExceptionHandlerTest {
     void genericException_returns500WithGenericErrorBody() throws Exception {
         mockMvc.perform(get("/stub/generic-error").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.error").value("Internal server error"))
+                .andExpect(jsonPath("$.status").value(500))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.path").value("/stub/generic-error"));
+    }
+
+    // ── 5. Error body never leaks internal messages ───────────────────────────
+
+    @Test
+    @DisplayName("Generic Exception body does not expose internal exception message")
+    void genericException_bodyDoesNotLeakInternalMessage() throws Exception {
+        mockMvc.perform(get("/stub/generic-error").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.error").value("Internal server error"));
+        // "Something went very wrong" must NOT appear in the response
     }
 }
