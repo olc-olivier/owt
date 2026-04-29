@@ -49,13 +49,14 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         // All other actuator endpoints require authentication
                         .requestMatchers("/actuator/**").authenticated()
-                        // H2 console and API docs — restricted to authenticated users
+                        // H2 console — restricted to authenticated users
+                        .requestMatchers("/h2-console/**").authenticated()
+                        // OpenAPI/Swagger endpoints — public read-only API metadata
                         .requestMatchers(
-                                "/h2-console/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
-                        ).authenticated()
+                        ).permitAll()
                         // Static assets and well-known browser probes
                         .requestMatchers(
                                 "/assets/**",

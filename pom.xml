@@ -16,7 +16,7 @@
   <properties>
     <java.version>25</java.version>
     <skipNpmTests>false</skipNpmTests>
-    <sonar.organization>olivier74</sonar.organization>
+    <skipOpenApiGen>true</skipOpenApiGen>
     <sonar.organization>olivier74</sonar.organization>
     <sonar.projectKey>olc-olivier_owt</sonar.projectKey>
     <springdoc-openapi-starter-webmvc-ui.version>3.0.1</springdoc-openapi-starter-webmvc-ui.version>
@@ -247,6 +247,28 @@
             </exclude>
           </excludes>
         </configuration>
+        <executions>
+          <execution>
+            <id>pre-integration-start</id>
+            <goals>
+              <goal>start</goal>
+            </goals>
+            <phase>pre-integration-test</phase>
+            <configuration>
+              <skip>${skipOpenApiGen}</skip>
+            </configuration>
+          </execution>
+          <execution>
+            <id>post-integration-stop</id>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+            <phase>post-integration-test</phase>
+            <configuration>
+              <skip>${skipOpenApiGen}</skip>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -322,11 +344,13 @@
             <goals>
               <goal>generate</goal>
             </goals>
-            <phase>none</phase>
+            <phase>integration-test</phase>
             <configuration>
               <apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
               <outputFileName>openapi.json</outputFileName>
               <outputDir>${project.basedir}/docs</outputDir>
+              <attachSwaggerUI>false</attachSwaggerUI>
+              <skip>${skipOpenApiGen}</skip>
             </configuration>
           </execution>
         </executions>
@@ -356,5 +380,16 @@
     <url></url>
     <tag></tag>
   </scm>
+
+  <profiles>
+    <profile>
+      <id>openapi-gen</id>
+      <properties>
+        <skipNpmTests>true</skipNpmTests>
+        <skipOpenApiGen>false</skipOpenApiGen>
+        <skipTests>true</skipTests>
+      </properties>
+    </profile>
+  </profiles>
 
 </project>

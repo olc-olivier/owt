@@ -10,7 +10,7 @@
     "test:ci": "jest --config jest.config.ts --ci --coverage --passWithNoTests",
     "test:coverage": "jest --config jest.config.ts --coverage",
     "test:watch": "jest --config jest.config.ts --watch",
-    "docs": "typedoc --tsconfig tsconfig.doc.json"
+    "docs": "typedoc"
   },
   "private": true,
   "packageManager": "npm@11.12.1",
