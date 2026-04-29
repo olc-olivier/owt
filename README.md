@@ -53,6 +53,11 @@ createdAt
 |||Audit log (who created / updated / deleted and when) |
 
 
+###
+
+:fire: Using Spring Security + Dex, maintained cohesion within the existing ecosystem (SPRING/DOCKER/OAUTH).
+Following the Docker recommended --> https://docs.docker.com/guides/dex/
+
 ### OAuth2 Credential 
 - User: admin@example.com
 - Password: password
